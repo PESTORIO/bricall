@@ -1,2 +1,382 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>طلبات الزبناء — حرفي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #1a1a2e; --accent: #e8b84b; --bg: #f5f0e8; --card: #ffffff; --text: #1a1a2e; --muted: #6b6b7b; --border: #e0d8cc; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { background: var(--primary); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { color: white; text-decoration: none; font-size: 20px; }
+    .logo { font-size: 22px; font-weight: 900; color: var(--accent); }
+    .logo span { color: white; }
+    .btn-pay-alert { background: var(--accent); color: var(--primary); border: none; padding: 8px 16px; border-radius: 20px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; animation: pulse 1.5s infinite; display: none; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+    .hero { background: var(--primary); padding: 28px 24px; text-align: center; }
+    .hero h1 { font-size: 22px; font-weight: 900; color: white; margin-bottom: 6px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-size: 13px; color: rgba(255,255,255,0.7); }
+    .container { max-width: 700px; margin: 0 auto; padding: 24px 16px; }
+    .wallet-bar { background: var(--primary); border-radius: 16px; padding: 18px 20px; margin-bottom: 20px; display: none; }
+    .wallet-bar-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .wallet-item { text-align: center; }
+    .wallet-label { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 3px; }
+    .wallet-value { font-size: 20px; font-weight: 900; color: var(--accent); }
+    .wallet-value.green { color: #5cb85c; }
+    .wallet-value.red { color: #e74c3c; }
+    .tabs { display: flex; margin-bottom: 20px; background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+    .tab-btn { flex: 1; padding: 12px; background: none; border: none; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted); border-left: 1px solid var(--border); }
+    .tab-btn:last-child { border-left: none; }
+    .tab-btn.active { background: var(--primary); color: white; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-bar select { flex: 1; padding: 10px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; background: white; }
+    .filter-bar button { padding: 10px 20px; background: var(--accent); color: var(--primary); border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .request-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 14px; }
+    .request-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .request-problem { font-size: 18px; font-weight: 900; }
+    .request-badge { background: var(--accent); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .request-meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .request-note { font-size: 13px; background: #f0ebe0; padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; }
+    .offer-form { border-top: 1px solid var(--border); padding-top: 14px; }
+    .offer-form label { font-size: 13px; font-weight: 700; display: block; margin-bottom: 5px; }
+    .offer-inputs { display: flex; gap: 10px; margin-bottom: 10px; }
+    .offer-inputs input { flex: 1; padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; }
+    .btn-offer { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn-offer:disabled { opacity: 0.5; cursor: not-allowed; }
+    .offer-sent { color: green; font-size: 13px; font-weight: 700; margin-top: 6px; }
+    .job-done-form { border: 2px dashed var(--accent); border-radius: 12px; padding: 14px; margin-top: 10px; }
+    .job-done-form h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+    .job-done-inputs { display: flex; gap: 10px; align-items: center; }
+    .job-done-inputs input { flex: 1; padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; }
+    .btn-done { padding: 10px 16px; background: #28a745; color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .commission-preview { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .earning-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .earning-info h3 { font-size: 14px; font-weight: 700; }
+    .earning-info p { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .earning-amounts { text-align: left; }
+    .earning-total { font-size: 18px; font-weight: 900; }
+    .earning-commission { font-size: 12px; color: #e74c3c; }
+    .earning-net { font-size: 13px; color: #28a745; font-weight: 700; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 20px; padding: 32px 24px; width: 90%; max-width: 400px; text-align: center; }
+    .modal h2 { font-size: 20px; font-weight: 900; margin-bottom: 16px; }
+    .amount-box { background: #f0ebe0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .amount-label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .amount-value { font-size: 36px; font-weight: 900; color: var(--primary); }
+    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+    .btn-confirm-pay { width: 100%; padding: 14px; background: var(--accent); color: var(--primary); border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+    .btn-close-modal { width: 100%; padding: 12px; background: none; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; cursor: pointer; }
+    .login-box { background: white; border-radius: 16px; padding: 28px 24px; max-width: 400px; margin: 40px auto; text-align: center; border: 1px solid var(--border); }
+    .login-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 16px; }
+    .login-box input { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; margin-bottom: 12px; }
+    .btn-login { width: 100%; padding: 12px; background: var(--accent); color: var(--primary); border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .empty-msg { text-align: center; padding: 48px; color: var(--muted); font-size: 15px; }
+    footer { background: var(--primary); color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 13px; margin-top: 32px; }
+    footer span { color: var(--accent); }
+  </style>
+</head>
+<body>
 
+<nav>
+  <div class="nav-left">
+    <a href="index.html" class="back-btn">←</a>
+    <div class="logo">حرفي<span>.</span></div>
+  </div>
+  <button class="btn-pay-alert" id="payAlertBtn" onclick="openPayModal()">💳 خلص العمولة</button>
+</nav>
+
+<div class="hero">
+  <h1>لوحة <span>الحرفي</span></h1>
+  <p>شوف الطلبات، أعطي عروضك، وتتبع مداخيلك</p>
+</div>
+
+<div class="container">
+
+  <div id="loginSection">
+    <div class="login-box">
+      <h2>🔑 دخول الحرفي</h2>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">أدخل رقم هاتفك المسجل</p>
+      <input type="tel" id="artisanPhone" placeholder="06XXXXXXXX" onkeydown="if(event.key==='Enter') loginArtisan()" />
+      <button class="btn-login" onclick="loginArtisan()">دخول ←</button>
+      <div id="loginError" style="color:red; font-size:13px; margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <div id="dashboardSection" style="display:none;">
+    <div class="wallet-bar" id="walletBar">
+      <div class="wallet-bar-inner">
+        <div class="wallet-item"><div class="wallet-label">إجمالي المداخيل</div><div class="wallet-value" id="wTotal">0 د</div></div>
+        <div class="wallet-item"><div class="wallet-label">نصيبك (90%)</div><div class="wallet-value green" id="wNet">0 د</div></div>
+        <div class="wallet-item"><div class="wallet-label">عمولة حرفي (10%)</div><div class="wallet-value red" id="wCommission">0 د</div></div>
+        <div class="wallet-item"><div class="wallet-label">غير مدفوعة</div><div class="wallet-value red" id="wUnpaid">0 د</div></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('requests', this)">📋 الطلبات</button>
+      <button class="tab-btn" onclick="showTab('earnings', this)">💰 مداخيلي</button>
+    </div>
+
+    <div class="section active" id="section-requests">
+      <div class="filter-bar">
+        <select id="filterCity">
+          <option value="">كل المدن</option>
+          <option value="الدار البيضاء">الدار البيضاء</option>
+          <option value="الرباط">الرباط</option>
+          <option value="مراكش">مراكش</option>
+          <option value="فاس">فاس</option>
+          <option value="طنجة">طنجة</option>
+          <option value="أكادير">أكادير</option>
+        </select>
+        <button onclick="loadRequests()">🔍 بحث</button>
+      </div>
+      <div id="requestsGrid"><div class="empty-msg">⏳ جاري التحميل...</div></div>
+    </div>
+
+    <div class="section" id="section-earnings">
+      <div id="earningsList"><div class="empty-msg">⏳ جاري التحميل...</div></div>
+    </div>
+  </div>
+</div>
+
+<footer>صُنع بـ ❤️ للمغرب — <span>حرفي</span> © 2026</footer>
+
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <h2>💳 تأدية العمولة الأسبوعية</h2>
+    <div class="amount-box">
+      <div class="amount-label">المبلغ المستحق (10%)</div>
+      <div class="amount-value" id="modalAmount">0 د</div>
+    </div>
+    <p>خلص هاد المبلغ عبر <strong>CashPlus</strong> لصاحب التطبيق، وبعدين كليك تأكيد</p>
+    <button class="btn-confirm-pay" onclick="confirmPayment()">✅ تأكيد الدفع</button>
+    <button class="btn-close-modal" onclick="closePayModal()">إلغاء</button>
+  </div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqF510_qVbJxImCP94Sl9uE7srF2u1Cuk",
+    authDomain: "hrafiy-app.firebaseapp.com",
+    projectId: "hrafiy-app",
+    storageBucket: "hrafiy-app.firebasestorage.app",
+    messagingSenderId: "668315848262",
+    appId: "1:668315848262:web:0323e4f8c932e040c80447"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let currentArtisan = null;
+  let unpaidCommission = 0;
+
+  async function loginArtisan() {
+    const phone = document.getElementById('artisanPhone').value.trim();
+    if (!phone) { document.getElementById('loginError').textContent = 'أدخل رقم هاتفك'; return; }
+    try {
+      const snap = await db.collection("artisans").where("phone", "==", phone).where("status", "==", "active").get();
+      if (snap.empty) { document.getElementById('loginError').textContent = 'رقم الهاتف غير مسجل أو غير مفعّل'; return; }
+      currentArtisan = { id: snap.docs[0].id, ...snap.docs[0].data() };
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('dashboardSection').style.display = 'block';
+      document.getElementById('walletBar').style.display = 'block';
+      loadWallet();
+      loadRequests();
+      checkWeeklyAlert();
+    } catch(e) { document.getElementById('loginError').textContent = 'حدث خطأ: ' + e.message; }
+  }
+
+  async function loadWallet() {
+    try {
+      const snap = await db.collection("earnings").where("artisan_id", "==", currentArtisan.id).get();
+      const earnings = snap.docs.map(d => d.data());
+      const total = earnings.reduce((s, e) => s + (e.total_price || 0), 0);
+      const commission = earnings.reduce((s, e) => s + (e.commission || 0), 0);
+      const unpaid = earnings.filter(e => !e.commission_paid).reduce((s, e) => s + (e.commission || 0), 0);
+      unpaidCommission = unpaid;
+      document.getElementById('wTotal').textContent = total + ' د';
+      document.getElementById('wNet').textContent = Math.round(total * 0.9) + ' د';
+      document.getElementById('wCommission').textContent = Math.round(commission) + ' د';
+      document.getElementById('wUnpaid').textContent = Math.round(unpaid) + ' د';
+      document.getElementById('modalAmount').textContent = Math.round(unpaid) + ' درهم';
+    } catch(e) { console.log(e); }
+  }
+
+  function checkWeeklyAlert() {
+    const lastPay = localStorage.getItem('lastPayDate_' + currentArtisan.id);
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    if (!lastPay || (Date.now() - Number(lastPay)) > oneWeek) {
+      document.getElementById('payAlertBtn').style.display = 'block';
+    }
+  }
+
+  function openPayModal() { document.getElementById('payModal').classList.add('active'); }
+  function closePayModal() { document.getElementById('payModal').classList.remove('active'); }
+
+  async function confirmPayment() {
+    if (unpaidCommission <= 0) { closePayModal(); return; }
+    try {
+      const snap = await db.collection("earnings").where("artisan_id", "==", currentArtisan.id).where("commission_paid", "==", false).get();
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.update(d.ref, { commission_paid: true }));
+      await batch.commit();
+      await db.collection("payments").add({
+        artisan_id: currentArtisan.id,
+        artisan_name: currentArtisan.name,
+        amount: Math.round(unpaidCommission),
+        type: "commission",
+        status: "pending_verification",
+        paid_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      localStorage.setItem('lastPayDate_' + currentArtisan.id, Date.now().toString());
+      document.getElementById('payAlertBtn').style.display = 'none';
+      closePayModal();
+      loadWallet();
+      alert('✅ تم التسجيل! انتظر تأكيد صاحب التطبيق');
+    } catch(e) { alert('خطأ: ' + e.message); }
+  }
+
+  function showTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('section-' + tab).classList.add('active');
+    if (tab === 'earnings') loadEarnings();
+  }
+
+  async function loadRequests() {
+    const city = document.getElementById('filterCity').value;
+    document.getElementById('requestsGrid').innerHTML = '<div class="empty-msg">⏳ جاري التحميل...</div>';
+    try {
+      const snap = await db.collection("requests").where("specialty", "==", currentArtisan.specialty).where("status", "==", "open").orderBy("created_at", "desc").get();
+      let requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (city) requests = requests.filter(r => r.city === city);
+      if (!requests.length) { document.getElementById('requestsGrid').innerHTML = '<div class="empty-msg">لا توجد طلبات حالياً</div>'; return; }
+
+      const offersSnap = await db.collection("offers").where("artisan_id", "==", currentArtisan.id).get();
+      const myOffers = new Set(offersSnap.docs.map(d => d.data().request_id));
+
+      document.getElementById('requestsGrid').innerHTML = requests.map(r => {
+        const timeAgo = r.created_at ? timeFromNow(r.created_at.toDate()) : '';
+        const alreadySent = myOffers.has(r.id);
+        const doneForm = `<div class="job-done-form" id="done-${r.id}">
+            <h4>📦 اكتملت الخدمة؟ أدخل الثمن النهائي</h4>
+            <div class="job-done-inputs">
+              <input type="number" id="final-${r.id}" placeholder="الثمن (درهم)" min="0" oninput="previewCommission('${r.id}')" />
+              <button class="btn-done" onclick="markJobDone('${r.id}')">✅ تم</button>
+            </div>
+            <div class="commission-preview" id="preview-${r.id}"></div>
+          </div>`;
+        const offerCount = offersSnap.docs.filter(d => d.data().request_id === r.id).length;
+        return `<div class="request-card" id="card-${r.id}">
+            <div class="request-header"><div class="request-problem">${r.problem}</div><div class="request-badge">${r.specialty}</div></div>
+            <div class="request-meta">📍 ${r.city} &nbsp;|&nbsp; 🕐 ${timeAgo}</div>
+            ${r.note ? `<div class="request-note">💬 ${r.note}</div>` : ''}
+            <div class="offer-form">
+              ${alreadySent
+                ? `<div class="offer-sent">✅ أرسلت عرضك</div>${doneForm}`
+                : `<div class="offer-inputs">
+                     <input type="number" disabled value="${offerCount}" style="max-width:80px;text-align:center;background:#f0ebe0;font-weight:700;" title="عدد العروض" />
+                     <input type="number" id="price-${r.id}" placeholder="السعر (درهم)" min="0" />
+                     <button class="btn-offer" id="btn-${r.id}" onclick="sendOffer('${r.id}')">📤 أرسل</button>
+                   </div>`}
+            </div>
+          </div>`;
+      }).join('');
+    } catch(e) { document.getElementById('requestsGrid').innerHTML = `<div class="empty-msg">حدث خطأ: ${e.message}</div>`; }
+  }
+
+  function previewCommission(id) {
+    const val = Number(document.getElementById('final-' + id).value);
+    if (!val) { document.getElementById('preview-' + id).textContent = ''; return; }
+    document.getElementById('preview-' + id).textContent = `نصيبك: ${Math.round(val*0.9)} د ✅ | عمولة حرفي: ${Math.round(val*0.1)} د`;
+  }
+
+  async function markJobDone(requestId) {
+    const price = Number(document.getElementById('final-' + requestId).value);
+    if (!price) { alert('أدخل الثمن النهائي'); return; }
+    const commission = Math.round(price * 0.1);
+    const net = price - commission;
+    try {
+      await db.collection("earnings").add({
+        artisan_id: currentArtisan.id,
+        artisan_name: currentArtisan.name,
+        request_id: requestId,
+        total_price: price,
+        net: net,
+        commission: commission,
+        commission_paid: false,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await db.collection("requests").doc(requestId).update({ status: 'done' });
+      document.getElementById('done-' + requestId).innerHTML = `<div style="color:green;font-weight:700;font-size:13px;">✅ تم التسجيل — نصيبك: ${net} درهم | عمولة: ${commission} درهم</div>`;
+      loadWallet();
+    } catch(e) { alert('خطأ: ' + e.message); }
+  }
+
+  async function sendOffer(requestId) {
+    const price = document.getElementById('price-' + requestId).value.trim();
     
+    if (!price) { alert('أدخل السعر'); return; }
+    const btn = document.getElementById('btn-' + requestId);
+    btn.disabled = true; btn.textContent = '⏳...';
+    try {
+      await db.collection("offers").add({
+        request_id: requestId, artisan_id: currentArtisan.id, artisan_name: currentArtisan.name,
+        artisan_phone: currentArtisan.phone, artisan_stars: currentArtisan.stars || 1,
+        artisan_city: currentArtisan.city, price: Number(price),
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      document.getElementById('card-' + requestId).querySelector('.offer-form').innerHTML =
+        `<div class="offer-sent">✅ تم إرسال عرضك!</div>
+         <div class="job-done-form" id="done-${requestId}">
+           <h4>📦 اكتملت الخدمة؟ أدخل الثمن النهائي</h4>
+           <div class="job-done-inputs">
+             <input type="number" id="final-${requestId}" placeholder="الثمن (درهم)" min="0" oninput="previewCommission('${requestId}')" />
+             <button class="btn-done" onclick="markJobDone('${requestId}')">✅ تم</button>
+           </div>
+           <div class="commission-preview" id="preview-${requestId}"></div>
+         </div>`;
+    } catch(e) { alert('حدث خطأ: ' + e.message); btn.disabled = false; btn.textContent = '📤 أرسل العرض'; }
+  }
+
+  async function loadEarnings() {
+    document.getElementById('earningsList').innerHTML = '<div class="empty-msg">⏳ جاري التحميل...</div>';
+    try {
+      const snap = await db.collection("earnings").where("artisan_id", "==", currentArtisan.id).orderBy("created_at", "desc").get();
+      const earnings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (!earnings.length) { document.getElementById('earningsList').innerHTML = '<div class="empty-msg">لا توجد مداخيل بعد</div>'; return; }
+      document.getElementById('earningsList').innerHTML = earnings.map(e => `
+        <div class="earning-card">
+          <div class="earning-info">
+            <h3>خدمة مكتملة</h3>
+            <p>${e.created_at ? e.created_at.toDate().toLocaleDateString('ar-MA') : ''}</p>
+            <p style="margin-top:4px;">${e.commission_paid ? '✅ العمولة مدفوعة' : '⏳ العمولة غير مدفوعة'}</p>
+          </div>
+          <div class="earning-amounts">
+            <div class="earning-total">${e.total_price} د</div>
+            <div class="earning-commission">- ${e.commission} د عمولة</div>
+            <div class="earning-net">= ${e.net} د صافي</div>
+          </div>
+        </div>`).join('');
+    } catch(e) { document.getElementById('earningsList').innerHTML = `<div class="empty-msg">خطأ: ${e.message}</div>`; }
+  }
+
+  function timeFromNow(date) {
+    const diff = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (diff < 1) return 'الآن';
+    if (diff < 60) return `منذ ${diff} دقيقة`;
+    if (diff < 1440) return `منذ ${Math.floor(diff/60)} ساعة`;
+    return `منذ ${Math.floor(diff/1440)} يوم`;
+  }
+</script>
+</body>
+</html>
