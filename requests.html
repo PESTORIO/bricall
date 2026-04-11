@@ -1,1 +1,435 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>طلبات الزبناء — حرفي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #1a1a2e; --accent: #e8b84b; --bg: #f5f0e8; --card: #ffffff; --text: #1a1a2e; --muted: #6b6b7b; --border: #e0d8cc; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { background: var(--primary); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { color: white; text-decoration: none; font-size: 20px; }
+    .logo { font-size: 22px; font-weight: 900; color: var(--accent); }
+    .logo span { color: white; }
+    .btn-pay-alert { background: var(--accent); color: var(--primary); border: none; padding: 8px 16px; border-radius: 20px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; animation: pulse 1.5s infinite; display: none; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+    .hero { background: var(--primary); padding: 28px 24px; text-align: center; }
+    .hero h1 { font-size: 22px; font-weight: 900; color: white; margin-bottom: 6px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-size: 13px; color: rgba(255,255,255,0.7); }
+    .container { max-width: 700px; margin: 0 auto; padding: 24px 16px; }
+    .wallet-bar { background: var(--primary); border-radius: 16px; padding: 18px 20px; margin-bottom: 20px; display: none; }
+    .wallet-bar-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .wallet-item { text-align: center; }
+    .wallet-label { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 3px; }
+    .wallet-value { font-size: 20px; font-weight: 900; color: var(--accent); }
+    .wallet-value.green { color: #5cb85c; }
+    .wallet-value.red { color: #e74c3c; }
+    .tabs { display: flex; margin-bottom: 20px; background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+    .tab-btn { flex: 1; padding: 12px; background: none; border: none; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted); border-left: 1px solid var(--border); }
+    .tab-btn:last-child { border-left: none; }
+    .tab-btn.active { background: var(--primary); color: white; }
+    .section { display: none; }
+    .section.active { display: block; }
 
+    /* OFFER BOX - خانة واحدة فوق */
+    .offer-box { background: white; border: 2px solid var(--accent); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+    .offer-box h3 { font-size: 16px; font-weight: 900; margin-bottom: 14px; color: var(--primary); }
+    .offer-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .offer-row select { flex: 2; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; }
+    .offer-row input { flex: 1; min-width: 100px; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; }
+    .btn-send-offer { padding: 12px 20px; background: var(--primary); color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .commission-preview { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+    /* REQUESTS LIST */
+    .request-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .request-card.offered { border-color: #28a745; background: #f8fff9; }
+    .request-info h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .request-info p { font-size: 12px; color: var(--muted); }
+    .request-badge { background: var(--accent); color: var(--primary); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .offered-badge { background: #d4edda; color: #155724; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+    /* DONE JOB */
+    .done-box { background: white; border: 2px dashed var(--accent); border-radius: 16px; padding: 20px; margin-bottom: 24px; display: none; }
+    .done-box h3 { font-size: 15px; font-weight: 900; margin-bottom: 12px; }
+    .done-row { display: flex; gap: 10px; align-items: center; }
+    .done-row select { flex: 2; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; }
+    .done-row input { flex: 1; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; }
+    .btn-done { padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+    /* EARNINGS */
+    .earning-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .earning-info h3 { font-size: 14px; font-weight: 700; }
+    .earning-info p { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .earning-amounts { text-align: left; }
+    .earning-total { font-size: 18px; font-weight: 900; }
+    .earning-commission { font-size: 12px; color: #e74c3c; }
+    .earning-net { font-size: 13px; color: #28a745; font-weight: 700; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 20px; padding: 32px 24px; width: 90%; max-width: 400px; text-align: center; }
+    .modal h2 { font-size: 20px; font-weight: 900; margin-bottom: 16px; }
+    .amount-box { background: #f0ebe0; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .amount-label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .amount-value { font-size: 36px; font-weight: 900; color: var(--primary); }
+    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+    .btn-confirm-pay { width: 100%; padding: 14px; background: var(--accent); color: var(--primary); border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+    .btn-close-modal { width: 100%; padding: 12px; background: none; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; cursor: pointer; }
+    .login-box { background: white; border-radius: 16px; padding: 28px 24px; max-width: 400px; margin: 40px auto; text-align: center; border: 1px solid var(--border); }
+    .login-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 16px; }
+    .login-box input { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; margin-bottom: 12px; }
+    .btn-login { width: 100%; padding: 12px; background: var(--accent); color: var(--primary); border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .empty-msg { text-align: center; padding: 40px; color: var(--muted); font-size: 15px; }
+    footer { background: var(--primary); color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 13px; margin-top: 32px; }
+    footer span { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="index.html" class="back-btn">←</a>
+    <div class="logo">حرفي<span>.</span></div>
+  </div>
+  <button class="btn-pay-alert" id="payAlertBtn" onclick="openPayModal()">💳 خلص العمولة</button>
+</nav>
+
+<div class="hero">
+  <h1>لوحة <span>الحرفي</span></h1>
+  <p>شوف الطلبات وأرسل عرضك بخانة واحدة</p>
+</div>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="loginSection">
+    <div class="login-box">
+      <h2>🔑 دخول الحرفي</h2>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">أدخل رقم هاتفك المسجل</p>
+      <input type="tel" id="artisanPhone" placeholder="06XXXXXXXX" onkeydown="if(event.key==='Enter') loginArtisan()" />
+      <button class="btn-login" onclick="loginArtisan()">دخول ←</button>
+      <div id="loginError" style="color:red; font-size:13px; margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboardSection" style="display:none;">
+
+    <!-- WALLET -->
+    <div class="wallet-bar" id="walletBar">
+      <div class="wallet-bar-inner">
+        <div class="wallet-item"><div class="wallet-label">إجمالي المداخيل</div><div class="wallet-value" id="wTotal">0 د</div></div>
+        <div class="wallet-item"><div class="wallet-label">نصيبك (90%)</div><div class="wallet-value green" id="wNet">0 د</div></div>
+        <div class="wallet-item"><div class="wallet-label">عمولة (10%)</div><div class="wallet-value red" id="wCommission">0 د</div></div>
+        <div class="wallet-item"><div class="wallet-label">غير مدفوعة</div><div class="wallet-value red" id="wUnpaid">0 د</div></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('requests', this)">📋 الطلبات</button>
+      <button class="tab-btn" onclick="showTab('earnings', this)">💰 مداخيلي</button>
+    </div>
+
+    <!-- REQUESTS TAB -->
+    <div class="section active" id="section-requests">
+
+      <!-- خانة إرسال العرض -->
+      <div class="offer-box">
+        <h3>📤 أرسل عرضك</h3>
+        <div class="offer-row">
+          <select id="offerProblem">
+            <option value="">اختر العطل</option>
+          </select>
+          <input type="number" id="offerPrice" placeholder="السعر (درهم)" min="0" oninput="previewOffer()" />
+          <button class="btn-send-offer" onclick="sendOffer()">أرسل ←</button>
+        </div>
+        <div class="commission-preview" id="offerPreview"></div>
+      </div>
+
+      <!-- خانة تسجيل الخدمة المكتملة -->
+      <div class="done-box" id="doneBox">
+        <h3>📦 سجل خدمة مكتملة</h3>
+        <div class="done-row">
+          <select id="doneProblem">
+            <option value="">اختر الطلب</option>
+          </select>
+          <input type="number" id="donePrice" placeholder="الثمن النهائي (درهم)" min="0" oninput="previewDone()" />
+          <button class="btn-done" onclick="markDone()">✅ تم</button>
+        </div>
+        <div class="commission-preview" id="donePreview"></div>
+      </div>
+
+      <!-- قائمة الطلبات -->
+      <div id="requestsGrid"><div class="empty-msg">⏳ جاري التحميل...</div></div>
+    </div>
+
+    <!-- EARNINGS TAB -->
+    <div class="section" id="section-earnings">
+      <div id="earningsList"><div class="empty-msg">⏳ جاري التحميل...</div></div>
+    </div>
+
+  </div>
+</div>
+
+<footer>صُنع بـ ❤️ للمغرب — <span>حرفي</span> © 2026</footer>
+
+<!-- PAY MODAL -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <h2>💳 تأدية العمولة الأسبوعية</h2>
+    <div class="amount-box">
+      <div class="amount-label">المبلغ المستحق (10%)</div>
+      <div class="amount-value" id="modalAmount">0 د</div>
+    </div>
+    <p>خلص هاد المبلغ عبر <strong>CashPlus</strong> لصاحب التطبيق، وبعدين كليك تأكيد</p>
+    <button class="btn-confirm-pay" onclick="confirmPayment()">✅ تأكيد الدفع</button>
+    <button class="btn-close-modal" onclick="closePayModal()">إلغاء</button>
+  </div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqF510_qVbJxImCP94Sl9uE7srF2u1Cuk",
+    authDomain: "hrafiy-app.firebaseapp.com",
+    projectId: "hrafiy-app",
+    storageBucket: "hrafiy-app.firebasestorage.app",
+    messagingSenderId: "668315848262",
+    appId: "1:668315848262:web:0323e4f8c932e040c80447"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let currentArtisan = null;
+  let unpaidCommission = 0;
+  let allRequests = [];
+  let myOfferedIds = new Set();
+
+  const problemsBySpecialty = {
+    'كهربائي': ['تركيب لمبة','تغيير قاطع','تركيب مقبس','مشكل كهرباء عام'],
+    'سبّاك': ['تسرب ماء','انسداد','تركيب صنبور','مشكل عام'],
+    'نجار خشب': ['إصلاح باب','تركيب خزانة','مشكل عام'],
+    'ألومنيوم': ['إصلاح نافذة','تركيب باب','مشكل عام'],
+    'إصلاح تلفاز': ['إصلاح تلفاز','إصلاح ستالايت','إصلاح أجهزة إلكترونية']
+  };
+
+  async function loginArtisan() {
+    const phone = document.getElementById('artisanPhone').value.trim();
+    if (!phone) { document.getElementById('loginError').textContent = 'أدخل رقم هاتفك'; return; }
+    try {
+      const snap = await db.collection("artisans").where("phone", "==", phone).where("status", "==", "active").get();
+      if (snap.empty) { document.getElementById('loginError').textContent = 'رقم الهاتف غير مسجل أو غير مفعّل'; return; }
+      currentArtisan = { id: snap.docs[0].id, ...snap.docs[0].data() };
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('dashboardSection').style.display = 'block';
+      document.getElementById('walletBar').style.display = 'block';
+
+      // نحشيو dropdown بالأعطال
+      const problems = problemsBySpecialty[currentArtisan.specialty] || [];
+      const opts = problems.map(p => `<option value="${p}">${p}</option>`).join('');
+      document.getElementById('offerProblem').innerHTML = '<option value="">اختر العطل</option>' + opts;
+
+      loadWallet();
+      loadRequests();
+      checkWeeklyAlert();
+    } catch(e) { document.getElementById('loginError').textContent = 'حدث خطأ: ' + e.message; }
+  }
+
+  async function loadWallet() {
+    try {
+      const snap = await db.collection("earnings").where("artisan_id", "==", currentArtisan.id).get();
+      const earnings = snap.docs.map(d => d.data());
+      const total = earnings.reduce((s, e) => s + (e.total_price || 0), 0);
+      const commission = earnings.reduce((s, e) => s + (e.commission || 0), 0);
+      const unpaid = earnings.filter(e => !e.commission_paid).reduce((s, e) => s + (e.commission || 0), 0);
+      unpaidCommission = unpaid;
+      document.getElementById('wTotal').textContent = total + ' د';
+      document.getElementById('wNet').textContent = Math.round(total * 0.9) + ' د';
+      document.getElementById('wCommission').textContent = Math.round(commission) + ' د';
+      document.getElementById('wUnpaid').textContent = Math.round(unpaid) + ' د';
+      document.getElementById('modalAmount').textContent = Math.round(unpaid) + ' درهم';
+    } catch(e) { console.log(e); }
+  }
+
+  function checkWeeklyAlert() {
+    const lastPay = localStorage.getItem('lastPayDate_' + currentArtisan.id);
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    if (!lastPay || (Date.now() - Number(lastPay)) > oneWeek) {
+      document.getElementById('payAlertBtn').style.display = 'block';
+    }
+  }
+
+  function openPayModal() { document.getElementById('payModal').classList.add('active'); }
+  function closePayModal() { document.getElementById('payModal').classList.remove('active'); }
+
+  async function confirmPayment() {
+    if (unpaidCommission <= 0) { closePayModal(); return; }
+    try {
+      const snap = await db.collection("earnings").where("artisan_id", "==", currentArtisan.id).where("commission_paid", "==", false).get();
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.update(d.ref, { commission_paid: true }));
+      await batch.commit();
+      await db.collection("payments").add({
+        artisan_id: currentArtisan.id, artisan_name: currentArtisan.name,
+        amount: Math.round(unpaidCommission), type: "commission", status: "pending_verification",
+        paid_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      localStorage.setItem('lastPayDate_' + currentArtisan.id, Date.now().toString());
+      document.getElementById('payAlertBtn').style.display = 'none';
+      closePayModal(); loadWallet();
+      alert('✅ تم التسجيل! انتظر تأكيد صاحب التطبيق');
+    } catch(e) { alert('خطأ: ' + e.message); }
+  }
+
+  function showTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('section-' + tab).classList.add('active');
+    if (tab === 'earnings') loadEarnings();
+  }
+
+  async function loadRequests() {
+    document.getElementById('requestsGrid').innerHTML = '<div class="empty-msg">⏳ جاري التحميل...</div>';
+    try {
+      const snap = await db.collection("requests")
+        .where("specialty", "==", currentArtisan.specialty)
+        .where("status", "==", "open")
+        .orderBy("created_at", "desc").get();
+
+      allRequests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      const offersSnap = await db.collection("offers").where("artisan_id", "==", currentArtisan.id).get();
+      myOfferedIds = new Set(offersSnap.docs.map(d => d.data().request_id));
+
+      // حشي dropdown "سجل خدمة مكتملة" بالطلبات اللي أرسلت عليها عرض
+      const myRequestsOpts = allRequests
+        .filter(r => myOfferedIds.has(r.id))
+        .map(r => `<option value="${r.id}">${r.problem} — ${r.city}</option>`).join('');
+
+      if (myRequestsOpts) {
+        document.getElementById('doneProblem').innerHTML = '<option value="">اختر الطلب</option>' + myRequestsOpts;
+        document.getElementById('doneBox').style.display = 'block';
+      }
+
+      if (!allRequests.length) {
+        document.getElementById('requestsGrid').innerHTML = '<div class="empty-msg">لا توجد طلبات حالياً</div>';
+        return;
+      }
+
+      document.getElementById('requestsGrid').innerHTML = allRequests.map(r => {
+        const timeAgo = r.created_at ? timeFromNow(r.created_at.toDate()) : '';
+        const offered = myOfferedIds.has(r.id);
+        return `<div class="request-card ${offered ? 'offered' : ''}" id="card-${r.id}">
+          <div class="request-info">
+            <h3>${r.problem}</h3>
+            <p>📍 ${r.city} &nbsp;|&nbsp; 🕐 ${timeAgo}</p>
+            ${r.note ? `<p style="margin-top:4px;">💬 ${r.note}</p>` : ''}
+          </div>
+          ${offered
+            ? '<span class="offered-badge">✅ أرسلت عرضك</span>'
+            : `<span class="request-badge">${r.specialty}</span>`}
+        </div>`;
+      }).join('');
+    } catch(e) { document.getElementById('requestsGrid').innerHTML = `<div class="empty-msg">خطأ: ${e.message}</div>`; }
+  }
+
+  function previewOffer() {
+    const price = Number(document.getElementById('offerPrice').value);
+    if (!price) { document.getElementById('offerPreview').textContent = ''; return; }
+    document.getElementById('offerPreview').textContent =
+      `نصيبك: ${Math.round(price * 0.9)} د | عمولة حرفي: ${Math.round(price * 0.1)} د`;
+  }
+
+  function previewDone() {
+    const price = Number(document.getElementById('donePrice').value);
+    if (!price) { document.getElementById('donePreview').textContent = ''; return; }
+    document.getElementById('donePreview').textContent =
+      `نصيبك: ${Math.round(price * 0.9)} د | عمولة حرفي: ${Math.round(price * 0.1)} د`;
+  }
+
+  async function sendOffer() {
+    const problem = document.getElementById('offerProblem').value;
+    const price = document.getElementById('offerPrice').value.trim();
+    if (!problem) { alert('اختر العطل'); return; }
+    if (!price) { alert('أدخل السعر'); return; }
+
+    // نلقاو الطلب المناسب
+    const request = allRequests.find(r => r.problem === problem && !myOfferedIds.has(r.id));
+    if (!request) { alert('لا يوجد طلب متاح لهذا العطل أو أرسلت عرضك مسبقاً'); return; }
+
+    try {
+      await db.collection("offers").add({
+        request_id: request.id, artisan_id: currentArtisan.id,
+        artisan_name: currentArtisan.name, artisan_phone: currentArtisan.phone,
+        artisan_stars: currentArtisan.stars || 1, artisan_city: currentArtisan.city,
+        price: Number(price), created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      document.getElementById('offerProblem').value = '';
+      document.getElementById('offerPrice').value = '';
+      document.getElementById('offerPreview').textContent = '';
+      alert('✅ تم إرسال عرضك!');
+      loadRequests();
+    } catch(e) { alert('خطأ: ' + e.message); }
+  }
+
+  async function markDone() {
+    const requestId = document.getElementById('doneProblem').value;
+    const price = Number(document.getElementById('donePrice').value);
+    if (!requestId) { alert('اختر الطلب'); return; }
+    if (!price) { alert('أدخل الثمن النهائي'); return; }
+    const commission = Math.round(price * 0.1);
+    const net = price - commission;
+    try {
+      await db.collection("earnings").add({
+        artisan_id: currentArtisan.id, artisan_name: currentArtisan.name,
+        request_id: requestId, total_price: price, net, commission,
+        commission_paid: false, created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await db.collection("requests").doc(requestId).update({ status: 'done' });
+      document.getElementById('doneProblem').value = '';
+      document.getElementById('donePrice').value = '';
+      document.getElementById('donePreview').textContent = '';
+      alert(`✅ تم التسجيل! نصيبك: ${net} درهم | عمولة: ${commission} درهم`);
+      loadWallet(); loadRequests();
+    } catch(e) { alert('خطأ: ' + e.message); }
+  }
+
+  async function loadEarnings() {
+    document.getElementById('earningsList').innerHTML = '<div class="empty-msg">⏳ جاري التحميل...</div>';
+    try {
+      const snap = await db.collection("earnings").where("artisan_id", "==", currentArtisan.id).orderBy("created_at", "desc").get();
+      const earnings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (!earnings.length) { document.getElementById('earningsList').innerHTML = '<div class="empty-msg">لا توجد مداخيل بعد</div>'; return; }
+      document.getElementById('earningsList').innerHTML = earnings.map(e => `
+        <div class="earning-card">
+          <div class="earning-info">
+            <h3>${e.request_id ? 'خدمة مكتملة' : ''}</h3>
+            <p>${e.created_at ? e.created_at.toDate().toLocaleDateString('ar-MA') : ''}</p>
+            <p style="margin-top:4px;">${e.commission_paid ? '✅ العمولة مدفوعة' : '⏳ العمولة غير مدفوعة'}</p>
+          </div>
+          <div class="earning-amounts">
+            <div class="earning-total">${e.total_price} د</div>
+            <div class="earning-commission">- ${e.commission} د عمولة</div>
+            <div class="earning-net">= ${e.net} د صافي</div>
+          </div>
+        </div>`).join('');
+    } catch(e) { document.getElementById('earningsList').innerHTML = `<div class="empty-msg">خطأ: ${e.message}</div>`; }
+  }
+
+  function timeFromNow(date) {
+    const diff = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (diff < 1) return 'الآن';
+    if (diff < 60) return `منذ ${diff} دقيقة`;
+    if (diff < 1440) return `منذ ${Math.floor(diff/60)} ساعة`;
+    return `منذ ${Math.floor(diff/1440)} يوم`;
+  }
+</script>
+</body>
+</html>
