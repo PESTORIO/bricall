@@ -1,1 +1,465 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة الأدمين — حرفي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #1a1a2e; --accent: #e8b84b; --bg: #f5f0e8; --card: #ffffff; --text: #1a1a2e; --muted: #6b6b7b; --border: #e0d8cc; --green: #28a745; --red: #dc3545; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
+    /* LOGIN */
+    .login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box { background: white; border-radius: 20px; padding: 40px 32px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .login-logo { font-size: 32px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
+    .login-logo span { color: var(--primary); }
+    .login-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+    .login-box input { width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; margin-bottom: 14px; text-align: center; letter-spacing: 2px; }
+    .login-box input:focus { outline: none; border-color: var(--accent); }
+    .btn-login { width: 100%; padding: 13px; background: var(--primary); color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .login-error { color: var(--red); font-size: 13px; margin-top: 10px; }
+
+    /* DASHBOARD */
+    .dashboard { display: none; }
+    nav { background: var(--primary); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 22px; font-weight: 900; color: var(--accent); }
+    .logo span { color: white; }
+    .nav-right { display: flex; align-items: center; gap: 16px; }
+    .nav-right span { color: rgba(255,255,255,0.7); font-size: 13px; }
+    .btn-logout { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; cursor: pointer; }
+
+    .stats-bar { background: var(--primary); padding: 0 24px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 900px; margin: 0 auto; }
+    .stat-card { background: rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; text-align: center; }
+    .stat-num { font-size: 28px; font-weight: 900; color: var(--accent); }
+    .stat-label { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+    .tabs { display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+    .tab-btn { padding: 10px 20px; background: none; border: none; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -2px; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--accent); }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ARTISAN CARDS */
+    .artisan-row { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; }
+    .artisan-avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--accent); font-weight: 900; flex-shrink: 0; }
+    .artisan-info { flex: 1; }
+    .artisan-info h3 { font-size: 15px; font-weight: 700; }
+    .artisan-info p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .artisan-info .tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .tag { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .tag-specialty { background: #f0ebe0; color: var(--primary); }
+    .tag-active { background: #d4edda; color: #155724; }
+    .tag-inactive { background: #f8d7da; color: #721c24; }
+    .tag-pending { background: #fff3cd; color: #856404; }
+    .artisan-actions { display: flex; flex-direction: column; gap: 6px; }
+    .btn-activate { padding: 7px 14px; background: var(--green); color: white; border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn-deactivate { padding: 7px 14px; background: var(--red); color: white; border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn-paid { padding: 7px 14px; background: var(--accent); color: var(--primary); border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+    /* PAYMENTS */
+    .payment-row { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .payment-info h3 { font-size: 15px; font-weight: 700; }
+    .payment-info p { font-size: 12px; color: var(--muted); }
+    .payment-amount { font-size: 20px; font-weight: 900; color: var(--primary); }
+    .payment-status-paid { color: var(--green); font-size: 12px; font-weight: 700; }
+    .payment-status-pending { color: #856404; font-size: 12px; font-weight: 700; }
+
+    /* REQUESTS */
+    .request-row { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 12px; }
+    .request-row h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .request-row p { font-size: 12px; color: var(--muted); }
+    .request-offers { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 6px; }
+
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-bar select { padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; }
+    .filter-bar button { padding: 8px 16px; background: var(--accent); color: var(--primary); border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+    .btn-edit { padding: 7px 14px; background: #17a2b8; color: white; border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn-delete { padding: 7px 14px; background: var(--red); color: white; border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .edit-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 300; align-items: center; justify-content: center; }
+    .edit-modal.active { display: flex; }
+    .edit-box { background: white; border-radius: 20px; padding: 28px 24px; width: 90%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
+    .edit-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 20px; }
+    .edit-group { margin-bottom: 12px; }
+    .edit-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .edit-group input, .edit-group select { width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 14px; }
+    .edit-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .btn-save { flex: 1; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-cancel { flex: 1; padding: 12px; background: none; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; cursor: pointer; }
+    .empty-msg { text-align: center; padding: 40px; color: var(--muted); }
+    .loading { text-align: center; padding: 30px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-page" id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">حرفي<span>.</span></div>
+    <div class="login-sub">لوحة تحكم الأدمين</div>
+    <input type="password" id="passwordInput" placeholder="كلمة السر" onkeydown="if(event.key==='Enter') checkLogin()" />
+    <button class="btn-login" onclick="checkLogin()">🔐 دخول</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <nav>
+    <div class="logo">حرفي<span>.</span> <span style="font-size:13px; color:rgba(255,255,255,0.5); font-weight:400;">— أدمين</span></div>
+    <div class="nav-right">
+      <button class="btn-logout" onclick="logout()">خروج</button>
+    </div>
+  </nav>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">—</div>
+      <div class="stat-label">إجمالي الحرفيين</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statActive">—</div>
+      <div class="stat-label">حرفيون نشطون</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statRequests">—</div>
+      <div class="stat-label">طلبات اليوم</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statRevenue">—</div>
+      <div class="stat-label">دخل الاشتراكات (درهم)</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('artisans', this)">👷 الحرفيون</button>
+      <button class="tab-btn" onclick="showTab('payments', this)">💰 المدفوعات</button>
+      <button class="tab-btn" onclick="showTab('requests', this)">📋 الطلبات</button>
+    </div>
+
+    <!-- ARTISANS -->
+    <div class="section active" id="section-artisans">
+      <div class="filter-bar">
+        <select id="filterStatus" onchange="loadArtisans()">
+          <option value="">كل الحالات</option>
+          <option value="active">نشط</option>
+          <option value="inactive">موقوف</option>
+          <option value="pending">في الانتظار</option>
+        </select>
+        <select id="filterSpecialty" onchange="loadArtisans()">
+          <option value="">كل التخصصات</option>
+          <option value="كهربائي">كهربائي</option>
+          <option value="سبّاك">سبّاك</option>
+          <option value="نجار خشب">نجار خشب</option>
+          <option value="ألومنيوم">ألومنيوم</option>
+          <option value="إصلاح تلفاز">إصلاح تلفاز</option>
+        </select>
+      </div>
+      <div id="artisansList"><div class="loading">⏳ جاري التحميل...</div></div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="section" id="section-payments">
+      <div id="paymentsList"><div class="loading">⏳ جاري التحميل...</div></div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div class="section" id="section-requests">
+      <div id="requestsList"><div class="loading">⏳ جاري التحميل...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ADMIN_PASSWORD = "sAMINED@12";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqF510_qVbJxImCP94Sl9uE7srF2u1Cuk",
+    authDomain: "hrafiy-app.firebaseapp.com",
+    projectId: "hrafiy-app",
+    storageBucket: "hrafiy-app.firebasestorage.app",
+    messagingSenderId: "668315848262",
+    appId: "1:668315848262:web:0323e4f8c932e040c80447"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  function checkLogin() {
+    const pwd = document.getElementById('passwordInput').value;
+    if (pwd === ADMIN_PASSWORD) {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadStats();
+      loadArtisans();
+    } else {
+      document.getElementById('loginError').textContent = '❌ كلمة السر غلط';
+    }
+  }
+
+  function logout() {
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('passwordInput').value = '';
+  }
+
+  function showTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('section-' + tab).classList.add('active');
+    if (tab === 'payments') loadPayments();
+    if (tab === 'requests') loadRequests();
+  }
+
+  async function loadStats() {
+    try {
+      const artSnap = await db.collection("artisans").get();
+      const artisans = artSnap.docs.map(d => d.data());
+      document.getElementById('statTotal').textContent = artisans.length;
+      document.getElementById('statActive').textContent = artisans.filter(a => a.status === 'active').length;
+
+      // طلبات اليوم
+      const today = new Date(); today.setHours(0,0,0,0);
+      const reqSnap = await db.collection("requests").get();
+      const todayReqs = reqSnap.docs.filter(d => {
+        const t = d.data().created_at;
+        return t && t.toDate() >= today;
+      });
+      document.getElementById('statRequests').textContent = todayReqs.length;
+
+      // دخل الاشتراكات
+      const paySnap = await db.collection("payments").where("status", "==", "paid").get();
+      const total = paySnap.docs.reduce((sum, d) => sum + (d.data().amount || 0), 0);
+      document.getElementById('statRevenue').textContent = total + ' د';
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  async function loadArtisans() {
+    document.getElementById('artisansList').innerHTML = '<div class="loading">⏳ جاري التحميل...</div>';
+    const status = document.getElementById('filterStatus').value;
+    const specialty = document.getElementById('filterSpecialty').value;
+
+    try {
+      let snap = await db.collection("artisans").get();
+      let artisans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (status) artisans = artisans.filter(a => a.status === status);
+      if (specialty) artisans = artisans.filter(a => a.specialty === specialty);
+
+      if (!artisans.length) {
+        document.getElementById('artisansList').innerHTML = '<div class="empty-msg">لا يوجد حرفيون</div>';
+        return;
+      }
+
+      document.getElementById('artisansList').innerHTML = artisans.map(a => {
+        const statusTag = a.status === 'active'
+          ? '<span class="tag tag-active">✅ نشط</span>'
+          : a.status === 'inactive'
+          ? '<span class="tag tag-inactive">🚫 موقوف</span>'
+          : '<span class="tag tag-pending">⏳ انتظار</span>';
+
+        const paidTag = a.subscription_paid
+          ? '<span class="tag" style="background:#d4edda;color:#155724;">💰 مدفوع</span>'
+          : '<span class="tag" style="background:#fff3cd;color:#856404;">💳 لم يدفع</span>';
+
+        return `
+          <div class="artisan-row">
+            <div class="artisan-avatar">${(a.name||'ح')[0]}</div>
+            <div class="artisan-info">
+              <h3>${a.name||''}</h3>
+              <p>📞 ${a.phone||''} &nbsp;|&nbsp; 📍 ${a.city||''}</p>
+              ${a.description ? `<p style="margin-top:4px;">${a.description}</p>` : ''}
+              <div class="tags">
+                <span class="tag tag-specialty">${a.specialty||''}</span>
+                ${statusTag}
+                ${paidTag}
+              </div>
+            </div>
+            <div class="artisan-actions">
+              ${a.status !== 'active'
+                ? `<button class="btn-activate" onclick="setStatus('${a.id}', 'active')">✅ تفعيل</button>`
+                : `<button class="btn-deactivate" onclick="setStatus('${a.id}', 'inactive')">🚫 إيقاف</button>`
+              }
+              ${!a.subscription_paid
+                ? `<button class="btn-paid" onclick="markPaid('${a.id}')">💰 خلص</button>`
+                : ''
+              }
+              <button class="btn-edit" onclick="openEdit('${a.id}', '${a.name}', '${a.phone}', '${a.specialty}', '${a.city}')">✏️ تعديل</button>
+              <button class="btn-delete" onclick="deleteArtisan('${a.id}', '${a.name}')">🗑️ حذف</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch(e) {
+      document.getElementById('artisansList').innerHTML = `<div class="empty-msg">خطأ: ${e.message}</div>`;
+    }
+  }
+
+  async function setStatus(id, status) {
+    await db.collection("artisans").doc(id).update({ status });
+    loadArtisans();
+    loadStats();
+  }
+
+  async function markPaid(id) {
+    await db.collection("artisans").doc(id).update({ subscription_paid: true });
+    // نسجلو في payments
+    await db.collection("payments").add({
+      artisan_id: id,
+      amount: 50,
+      type: "subscription",
+      status: "paid",
+      paid_at: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    loadArtisans();
+    loadStats();
+  }
+
+  async function loadPayments() {
+    document.getElementById('paymentsList').innerHTML = '<div class="loading">⏳ جاري التحميل...</div>';
+    try {
+      const snap = await db.collection("payments").orderBy("paid_at", "desc").get();
+      const payments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (!payments.length) {
+        document.getElementById('paymentsList').innerHTML = '<div class="empty-msg">لا توجد مدفوعات بعد</div>';
+        return;
+      }
+
+      // نجلبو أسماء الحرفيين
+      const artisanIds = [...new Set(payments.map(p => p.artisan_id))];
+      const artisanMap = {};
+      for (const id of artisanIds) {
+        const doc = await db.collection("artisans").doc(id).get();
+        if (doc.exists) artisanMap[id] = doc.data().name;
+      }
+
+      document.getElementById('paymentsList').innerHTML = `
+        <div style="background:white;border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-weight:700;">إجمالي المداخيل</div>
+          <div style="font-size:22px;font-weight:900;color:var(--accent);">${payments.reduce((s,p)=>s+(p.amount||0),0)} درهم</div>
+        </div>
+        ${payments.map(p => `
+          <div class="payment-row">
+            <div class="payment-info">
+              <h3>${artisanMap[p.artisan_id] || 'حرفي'}</h3>
+              <p>${p.type === 'subscription' ? '📅 اشتراك شهري' : '💼 نسبة خدمة'} — ${p.paid_at ? p.paid_at.toDate().toLocaleDateString('ar-MA') : ''}</p>
+            </div>
+            <div style="text-align:left;">
+              <div class="payment-amount">${p.amount} د</div>
+              <div class="payment-status-paid">✅ مدفوع</div>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    } catch(e) {
+      document.getElementById('paymentsList').innerHTML = `<div class="empty-msg">خطأ: ${e.message}</div>`;
+    }
+  }
+
+  async function loadRequests() {
+    document.getElementById('requestsList').innerHTML = '<div class="loading">⏳ جاري التحميل...</div>';
+    try {
+      const snap = await db.collection("requests").orderBy("created_at", "desc").get();
+      const requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (!requests.length) {
+        document.getElementById('requestsList').innerHTML = '<div class="empty-msg">لا توجد طلبات</div>';
+        return;
+      }
+
+      // نجلبو عدد العروض لكل طلب
+      const offersSnap = await db.collection("offers").get();
+      const offersMap = {};
+      offersSnap.docs.forEach(d => {
+        const rid = d.data().request_id;
+        offersMap[rid] = (offersMap[rid] || 0) + 1;
+      });
+
+      document.getElementById('requestsList').innerHTML = requests.map(r => `
+        <div class="request-row">
+          <h3>${r.problem} — ${r.specialty}</h3>
+          <p>📍 ${r.city} &nbsp;|&nbsp; 📞 ${r.client_phone} &nbsp;|&nbsp; 🕐 ${r.created_at ? r.created_at.toDate().toLocaleString('ar-MA') : ''}</p>
+          ${r.note ? `<p style="margin-top:4px;">💬 ${r.note}</p>` : ''}
+          <div class="request-offers">📩 ${offersMap[r.id] || 0} عرض</div>
+        </div>
+      `).join('');
+    } catch(e) {
+      document.getElementById('requestsList').innerHTML = `<div class="empty-msg">خطأ: ${e.message}</div>`;
+    }
+  }
+
+  let editingId = null;
+
+  function openEdit(id, name, phone, specialty, city) {
+    editingId = id;
+    document.getElementById('editName').value = name;
+    document.getElementById('editPhone').value = phone;
+    document.getElementById('editSpecialty').value = specialty;
+    document.getElementById('editCity').value = city;
+    document.getElementById('editModal').classList.add('active');
+  }
+
+  function closeEdit() {
+    document.getElementById('editModal').classList.remove('active');
+    editingId = null;
+  }
+
+  async function saveEdit() {
+    if (!editingId) return;
+    const name = document.getElementById('editName').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+    const specialty = document.getElementById('editSpecialty').value;
+    const city = document.getElementById('editCity').value.trim();
+    if (!name || !phone || !city) { alert('يرجى ملء جميع الحقول'); return; }
+    try {
+      await db.collection('artisans').doc(editingId).update({ name, phone, specialty, city });
+      closeEdit();
+      loadArtisans();
+      alert('✅ تم التعديل!');
+    } catch(e) { alert('خطأ: ' + e.message); }
+  }
+
+  async function deleteArtisan(id, name) {
+    if (!confirm('هل أنت متأكد من حذف: ' + name + '؟')) return;
+    try {
+      await db.collection('artisans').doc(id).delete();
+      loadArtisans();
+      loadStats();
+      alert('✅ تم الحذف!');
+    } catch(e) { alert('خطأ: ' + e.message); }
+  }
+</script>
+<!-- EDIT MODAL -->
+<div class="edit-modal" id="editModal">
+  <div class="edit-box">
+    <h2>✏️ تعديل الحرفي</h2>
+    <div class="edit-group"><label>الاسم</label><input type="text" id="editName" /></div>
+    <div class="edit-group"><label>رقم الهاتف</label><input type="tel" id="editPhone" /></div>
+    <div class="edit-group"><label>التخصص</label>
+      <select id="editSpecialty">
+        <option value="كهربائي">كهربائي</option>
+        <option value="سبّاك">سبّاك</option>
+        <option value="نجار خشب">نجار خشب</option>
+        <option value="ألومنيوم">ألومنيوم</option>
+        <option value="إصلاح تلفاز">إصلاح تلفاز</option>
+      </select>
+    </div>
+    <div class="edit-group"><label>المدينة</label><input type="text" id="editCity" /></div>
+    <div class="edit-actions">
+      <button class="btn-save" onclick="saveEdit()">💾 حفظ</button>
+      <button class="btn-cancel" onclick="closeEdit()">إلغاء</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
