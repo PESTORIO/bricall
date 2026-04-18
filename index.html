@@ -1,1 +1,378 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حرفي — اعثر على الحرفي المثالي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #1a1a2e; --accent: #e8b84b; --bg: #f5f0e8; --card: #ffffff; --text: #1a1a2e; --muted: #6b6b7b; --border: #e0d8cc; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { background: var(--primary); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 28px; font-weight: 900; color: var(--accent); }
+    .logo span { color: white; }
+    nav a { color: white; text-decoration: none; font-size: 15px; margin-right: 24px; opacity: 0.8; }
+    .btn-nav { background: var(--accent); color: var(--primary); padding: 8px 20px; border-radius: 8px; font-weight: 700; border: none; font-family: 'Cairo', sans-serif; font-size: 15px; cursor: pointer; }
+    .hero { background: var(--primary); padding: 80px 32px; text-align: center; }
+    .hero h1 { font-size: 48px; font-weight: 900; color: white; margin-bottom: 16px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-size: 18px; color: rgba(255,255,255,0.7); margin-bottom: 40px; }
+    .search-bar { display: flex; max-width: 600px; margin: 0 auto; gap: 12px; }
+    .search-bar select { flex: 1; padding: 16px 20px; border: none; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 15px; }
+    .search-bar button { padding: 16px 32px; background: var(--accent); color: var(--primary); border: none; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .section { padding: 60px 32px; max-width: 1100px; margin: 0 auto; }
+    .section-title { font-size: 28px; font-weight: 900; margin-bottom: 32px; }
+    .cats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+    .cat-card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .cat-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .cat-icon { font-size: 36px; margin-bottom: 10px; }
+    .cat-name { font-size: 14px; font-weight: 700; }
+    .artisans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .artisan-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; transition: all 0.2s; position: relative; }
+    .artisan-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); border-color: var(--accent); }
+    .artisan-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .artisan-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--accent); font-weight: 900; flex-shrink: 0; }
+    .artisan-info h3 { font-size: 17px; font-weight: 700; }
+    .artisan-info p { font-size: 13px; color: var(--muted); }
+    .stars { display: flex; gap: 3px; margin-bottom: 12px; }
+    .star { color: #ccc; font-size: 18px; }
+    .star.filled { color: var(--accent); }
+    .artisan-specialty { display: inline-block; background: #f0ebe0; color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+    .artisan-reviews { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .btn-contact { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .rank-badge { position: absolute; top: 16px; left: 16px; background: var(--accent); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .empty-msg { text-align: center; padding: 60px; color: var(--muted); font-size: 18px; grid-column: 1/-1; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 20px; padding: 40px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+    .modal h2 { font-size: 24px; font-weight: 900; margin-bottom: 24px; color: var(--primary); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .form-group input, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; }
+    .btn-submit { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+    .btn-close { background: none; border: none; font-size: 24px; cursor: pointer; float: left; color: var(--muted); }
+    .success-msg { background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; display: none; }
 
+    /* CHAT WIDGET */
+    .chat-btn { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; background: var(--accent); color: var(--primary); border: none; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }
+    .chat-box { position: fixed; bottom: 92px; left: 24px; width: 320px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 998; display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
+    .chat-box.active { display: flex; }
+    .chat-header { background: var(--primary); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .chat-header h4 { color: white; font-size: 15px; font-weight: 700; }
+    .chat-header span { color: var(--accent); font-size: 12px; }
+    .chat-close { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+    .chat-messages { height: 260px; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+    .chat-msg.user { background: var(--primary); color: white; align-self: flex-start; border-radius: 12px 12px 12px 0; }
+    .chat-msg.support { background: #f0ebe0; color: var(--text); align-self: flex-end; border-radius: 12px 12px 0 12px; }
+    .chat-msg .msg-time { font-size: 10px; opacity: 0.6; margin-top: 4px; }
+    .chat-input-area { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+    .chat-input-area input { flex: 1; padding: 10px 12px; border: 2px solid var(--border); border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; }
+    .chat-input-area input:focus { outline: none; border-color: var(--accent); }
+    .chat-send { padding: 10px 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .chat-name-area { padding: 14px; border-bottom: 1px solid var(--border); }
+    .chat-name-area input { width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; margin-bottom: 8px; }
+    .chat-start-btn { width: 100%; padding: 10px; background: var(--accent); color: var(--primary); border: none; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .chat-badge { position: absolute; top: -4px; right: -4px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: none; align-items: center; justify-content: center; font-weight: 700; }
+    footer { background: var(--primary); color: rgba(255,255,255,0.6); text-align: center; padding: 32px; font-size: 14px; margin-top: 40px; }
+    footer span { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">حرفي<span>.</span></div>
+    <div>
+      <a href="#">الرئيسية</a>
+      <a href="#">الحرفيون</a>
+      <button class="btn-nav" onclick="openModal()">سجل كحرفي</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>اعثر على <span>الحرفي المثالي</span><br/>في مدينتك</h1>
+    <p>كهربائيون، سبّاكون، نجارون — كلهم في مكان واحد</p>
+    <div class="search-bar">
+      <select id="filterSpecialty">
+        <option value="">كل التخصصات</option>
+        <option value="كهربائي">كهربائي</option>
+        <option value="سبّاك">سبّاك</option>
+        <option value="نجار خشب">نجار خشب</option>
+        <option value="ألومنيوم">ألومنيوم</option>
+        <option value="إصلاح تلفاز">إصلاح تلفاز</option>
+      </select>
+      <button onclick="filterArtisans()">🔍 بحث</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">التخصصات</div>
+    <div class="cats-grid">
+      <div class="cat-card" onclick="filterBycat('كهربائي')"><div class="cat-icon">⚡</div><div class="cat-name">كهربائي</div></div>
+      <div class="cat-card" onclick="filterBycat('سبّاك')"><div class="cat-icon">🔧</div><div class="cat-name">سبّاك</div></div>
+      <div class="cat-card" onclick="filterBycat('نجار خشب')"><div class="cat-icon">🪵</div><div class="cat-name">نجار خشب</div></div>
+      <div class="cat-card" onclick="filterBycat('ألومنيوم')"><div class="cat-icon">🪟</div><div class="cat-name">ألومنيوم</div></div>
+      <div class="cat-card" onclick="filterBycat('إصلاح تلفاز')"><div class="cat-icon">📺</div><div class="cat-name">إصلاح تلفاز</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">أفضل الحرفيين</div>
+    <div class="artisans-grid" id="artisansGrid">
+      <div class="empty-msg">⏳ جاري التحميل...</div>
+    </div>
+  </div>
+
+  <footer>صُنع بـ ❤️ للمغرب — <span>حرفي</span> © 2026</footer>
+
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <button class="btn-close" onclick="closeModal()">✕</button>
+      <h2>سجل كحرفي</h2>
+      <div class="success-msg" id="successMsg">✅ تم التسجيل بنجاح! سيتم مراجعة طلبك.</div>
+      <div class="form-group"><label>الاسم الكامل *</label><input type="text" id="regName" placeholder="مثال: حسن البكوري" /></div>
+      <div class="form-group"><label>رقم الهاتف *</label><input type="tel" id="regPhone" placeholder="06XXXXXXXX" /></div>
+      <div class="form-group"><label>التخصص *</label>
+        <select id="regSpecialty">
+          <option value="">اختر التخصص</option>
+          <option value="كهربائي">كهربائي</option>
+          <option value="سبّاك">سبّاك</option>
+          <option value="نجار خشب">نجار خشب</option>
+          <option value="ألومنيوم">ألومنيوم</option>
+          <option value="إصلاح تلفاز">إصلاح تلفاز</option>
+        </select>
+      </div>
+      <div class="form-group"><label>المدينة *</label><input type="text" id="regCity" placeholder="مثال: الدار البيضاء" /></div>
+      <button class="btn-submit" onclick="registerArtisan()">📝 تسجيل الآن</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqF510_qVbJxImCP94Sl9uE7srF2u1Cuk",
+      authDomain: "hrafiy-app.firebaseapp.com",
+      projectId: "hrafiy-app",
+      storageBucket: "hrafiy-app.firebasestorage.app",
+      messagingSenderId: "668315848262",
+      appId: "1:668315848262:web:0323e4f8c932e040c80447"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let allArtisans = [];
+
+    async function loadArtisans() {
+      try {
+        const snapshot = await db.collection("artisans").get();
+        allArtisans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        allArtisans.sort((a,b) => (b.rank_score||0) - (a.rank_score||0));
+        renderArtisans(allArtisans);
+      } catch(e) {
+        document.getElementById('artisansGrid').innerHTML = '<div class="empty-msg">لا يوجد حرفيون مسجلون بعد</div>';
+      }
+    }
+
+    function renderStars(n) {
+      return [1,2,3,4,5].map(i => `<span class="star ${i<=n?'filled':''}">★</span>`).join('');
+    }
+
+    function getBadge(stars) {
+      if (stars >= 5) return 'خبير';
+      if (stars >= 4) return 'محترف';
+      if (stars >= 3) return 'ممتاز';
+      return null;
+    }
+
+    function renderArtisans(list) {
+      const grid = document.getElementById('artisansGrid');
+      if (!list.length) { grid.innerHTML = '<div class="empty-msg">لا يوجد حرفيون في هذا التخصص</div>'; return; }
+      grid.innerHTML = list.map(a => {
+        const badge = getBadge(a.stars||1);
+        return `<div class="artisan-card">
+          ${badge ? `<div class="rank-badge">${badge}</div>` : ''}
+          <div class="artisan-header">
+            <div class="artisan-avatar">${(a.name||'ح')[0]}</div>
+            <div class="artisan-info"><h3>${a.name||''}</h3><p>📍 ${a.city||''}</p></div>
+          </div>
+          <div class="artisan-specialty">${a.specialty||''}</div>
+          <div class="stars">${renderStars(a.stars||1)}</div>
+          <div class="artisan-reviews">${a.review_count||0} تقييم</div>
+          <button class="btn-contact" onclick="window.location='tel:${a.phone}'">📞 اتصل الآن</button>
+        </div>`;
+      }).join('');
+    }
+
+    function filterArtisans() {
+      const s = document.getElementById('filterSpecialty').value;
+      renderArtisans(s ? allArtisans.filter(a => a.specialty === s) : allArtisans);
+    }
+
+    function filterBycat(s) {
+      document.getElementById('filterSpecialty').value = s;
+      filterArtisans();
+    }
+
+    async function registerArtisan() {
+      const name = document.getElementById('regName').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const specialty = document.getElementById('regSpecialty').value;
+      const city = document.getElementById('regCity').value.trim();
+      if (!name || !phone || !specialty || !city) { alert('يرجى ملء جميع الحقول'); return; }
+      try {
+        await db.collection("artisans").add({
+          name, phone, specialty, city,
+          stars: 1, review_count: 0, rank_score: 0,
+          status: "active", warnings: 0,
+          created_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('successMsg').style.display = 'block';
+        document.getElementById('regName').value = '';
+        document.getElementById('regPhone').value = '';
+        document.getElementById('regSpecialty').value = '';
+        document.getElementById('regCity').value = '';
+        loadArtisans();
+        setTimeout(closeModal, 3000);
+      } catch(e) { alert('حدث خطأ: ' + e.message); }
+    }
+
+    function openModal() { document.getElementById('modalOverlay').classList.add('active'); document.getElementById('successMsg').style.display='none'; }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+    function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+    loadArtisans();
+
+    // ===== CHAT SYSTEM =====
+    let chatSessionId = localStorage.getItem('chatSessionId');
+    let chatUserName = localStorage.getItem('chatUserName') || '';
+    let chatUserPhone = localStorage.getItem('chatUserPhone') || '';
+    let chatUnsubscribe = null;
+
+    function toggleChat() {
+      const box = document.getElementById('chatBox');
+      box.classList.toggle('active');
+      if (box.classList.contains('active')) {
+        document.getElementById('chatBadge').style.display = 'none';
+        if (chatSessionId) loadChatMessages();
+      }
+    }
+
+    function startChat() {
+      const name = document.getElementById('chatUserName').value.trim();
+      const phone = document.getElementById('chatUserPhone').value.trim();
+      if (!phone) { alert('يرجى إدخال رقم هاتفك'); return; }
+      chatUserName = name || 'زبون';
+      chatUserPhone = phone;
+      chatSessionId = 'chat_' + Date.now();
+      localStorage.setItem('chatSessionId', chatSessionId);
+      localStorage.setItem('chatUserName', chatUserName);
+      localStorage.setItem('chatUserPhone', chatUserPhone);
+
+      // Create session in Firebase
+      db.collection('chats').doc(chatSessionId).set({
+        user_name: chatUserName,
+        user_phone: chatUserPhone,
+        status: 'open',
+        created_at: firebase.firestore.FieldValue.serverTimestamp(),
+        last_message: '',
+        unread_admin: 0
+      });
+
+      document.getElementById('chatNameArea').style.display = 'none';
+      document.getElementById('chatMessages').style.display = 'flex';
+      document.getElementById('chatInputArea').style.display = 'flex';
+      loadChatMessages();
+    }
+
+    function loadChatMessages() {
+      if (!chatSessionId) return;
+      document.getElementById('chatNameArea').style.display = 'none';
+      document.getElementById('chatMessages').style.display = 'flex';
+      document.getElementById('chatInputArea').style.display = 'flex';
+
+      if (chatUnsubscribe) chatUnsubscribe();
+      chatUnsubscribe = db.collection('chats').doc(chatSessionId)
+        .collection('messages').orderBy('sent_at', 'asc')
+        .onSnapshot(function(snap) {
+          const msgs = document.getElementById('chatMessages');
+          msgs.innerHTML = '<div class="chat-msg support">مرحباً! كيف يمكننا مساعدتك؟<div class="msg-time">الدعم</div></div>';
+          snap.docs.forEach(function(d) {
+            const m = d.data();
+            const time = m.sent_at ? m.sent_at.toDate().toLocaleTimeString('ar', {hour:'2-digit',minute:'2-digit'}) : '';
+            const cls = m.sender === 'user' ? 'user' : 'support';
+            msgs.innerHTML += '<div class="chat-msg ' + cls + '">' + m.text + '<div class="msg-time">' + time + '</div></div>';
+          });
+          msgs.scrollTop = msgs.scrollHeight;
+        });
+    }
+
+    async function sendChatMsg() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text || !chatSessionId) return;
+      input.value = '';
+      try {
+        await db.collection('chats').doc(chatSessionId).collection('messages').add({
+          text: text, sender: 'user',
+          sent_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        await db.collection('chats').doc(chatSessionId).update({
+          last_message: text,
+          unread_admin: firebase.firestore.FieldValue.increment(1),
+          updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch(e) { console.log(e); }
+    }
+
+    // Check if existing session
+    if (chatSessionId) {
+      db.collection('chats').doc(chatSessionId).get().then(function(doc) {
+        if (doc.exists) {
+          chatUserName = doc.data().user_name || '';
+          chatUserPhone = doc.data().user_phone || '';
+        }
+      });
+    }
+
+  </script>
+
+  <!-- CHAT WIDGET -->
+  <button class="chat-btn" onclick="toggleChat()" title="تواصل مع الدعم">
+    💬
+    <div class="chat-badge" id="chatBadge"></div>
+  </button>
+
+  <div class="chat-box" id="chatBox">
+    <div class="chat-header">
+      <div>
+        <h4>💬 دعم العملاء</h4>
+        <span>نرد عليك في أقرب وقت</span>
+      </div>
+      <button class="chat-close" onclick="toggleChat()">✕</button>
+    </div>
+
+    <!-- اسم المستخدم -->
+    <div class="chat-name-area" id="chatNameArea">
+      <input type="text" id="chatUserName" placeholder="اسمك (اختياري)" />
+      <input type="tel" id="chatUserPhone" placeholder="رقم هاتفك *" />
+      <button class="chat-start-btn" onclick="startChat()">ابدأ المحادثة ←</button>
+    </div>
+
+    <!-- الرسائل -->
+    <div class="chat-messages" id="chatMessages" style="display:none;">
+      <div class="chat-msg support">
+        مرحباً! كيف يمكننا مساعدتك؟
+        <div class="msg-time">الدعم</div>
+      </div>
+    </div>
+
+    <!-- خانة الكتابة -->
+    <div class="chat-input-area" id="chatInputArea" style="display:none;">
+      <input type="text" id="chatInput" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter') sendChatMsg()" />
+      <button class="chat-send" onclick="sendChatMsg()">←</button>
+    </div>
+  </div>
+
+</body>
+</html>
