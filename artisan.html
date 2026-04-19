@@ -1,1 +1,302 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تفاصيل الحرفي — حرفي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #1a1a2e; --accent: #e8b84b; --bg: #f5f0e8; --card: #ffffff; --text: #1a1a2e; --muted: #6b6b7b; --border: #e0d8cc; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { background: var(--primary); padding: 16px 24px; display: flex; align-items: center; gap: 16px; }
+    .back-btn { color: white; text-decoration: none; font-size: 20px; }
+    .logo { font-size: 22px; font-weight: 900; color: var(--accent); }
+    .btn-lang { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 12px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; margin-right: auto; }
+    .container { max-width: 700px; margin: 0 auto; padding: 24px 16px; }
+    .profile-card { background: var(--card); border-radius: 20px; padding: 32px 24px; margin-bottom: 20px; border: 1px solid var(--border); text-align: center; }
+    .avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--accent); font-weight: 900; margin: 0 auto 16px; }
+    .artisan-name { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
+    .artisan-specialty { display: inline-block; background: #f0ebe0; color: var(--primary); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+    .artisan-city { color: var(--muted); font-size: 15px; margin-bottom: 16px; }
+    .stars-big { font-size: 28px; color: var(--accent); margin-bottom: 6px; }
+    .reviews-count { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .description-card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); }
+    .card-title { font-size: 18px; font-weight: 900; margin-bottom: 12px; color: var(--primary); }
+    .description-text { font-size: 15px; line-height: 1.8; color: var(--muted); }
+    .no-desc { font-size: 14px; color: #ccc; font-style: italic; }
+    .contact-card { background: var(--primary); border-radius: 16px; padding: 24px; margin-bottom: 20px; text-align: center; }
+    .phone-num { font-size: 22px; font-weight: 700; color: white; margin-bottom: 16px; direction: ltr; }
+    .btn-call { display: block; width: 100%; padding: 16px; background: var(--accent); color: var(--primary); border: none; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 900; cursor: pointer; text-decoration: none; }
+    .reviews-card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); }
+    .review-item { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    .review-item:last-child { border-bottom: none; }
+    .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .review-stars { color: var(--accent); font-size: 16px; }
+    .review-date { font-size: 12px; color: var(--muted); }
+    .review-text { font-size: 14px; line-height: 1.6; }
+    .no-reviews { text-align: center; padding: 32px; color: var(--muted); }
+    .add-review-card { background: var(--card); border-radius: 16px; padding: 24px; border: 1px solid var(--border); margin-bottom: 32px; }
+    .stars-select { display: flex; gap: 8px; margin-bottom: 16px; flex-direction: row-reverse; justify-content: flex-end; }
+    .stars-select input { display: none; }
+    .stars-select label { font-size: 32px; color: #ddd; cursor: pointer; transition: color 0.2s; }
+    .stars-select input:checked ~ label, .stars-select label:hover, .stars-select label:hover ~ label { color: var(--accent); }
+    textarea { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; resize: none; height: 100px; margin-bottom: 16px; }
+    textarea:focus { outline: none; border-color: var(--accent); }
+    .btn-submit { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .success-msg { background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; display: none; text-align: center; }
+    .loading { text-align: center; padding: 60px; color: var(--muted); }
 
+    .gallery-card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); }
+    .slider-wrap { position: relative; overflow: hidden; border-radius: 12px; margin-top: 12px; background: #000; }
+    .slider-track { display: flex; transition: transform 0.4s ease; direction: ltr; }
+    .slider-track img { min-width: 100%; width: 100%; height: 260px; object-fit: cover; flex-shrink: 0; }
+    .slider-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center; }
+    .slider-btn.prev { left: 8px; }
+    .slider-btn.next { right: 8px; }
+    .slider-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+    .slider-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: pointer; transition: background 0.2s; }
+    .slider-dot.active { background: var(--accent); }
+    .no-gallery { text-align: center; padding: 24px; color: var(--muted); font-size: 14px; }
+
+    footer { background: var(--primary); color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 13px; margin-top: 32px; }
+    footer span { color: var(--accent); }
+    footer a { color: rgba(255,255,255,0.5); text-decoration: none; margin: 0 8px; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="back-btn">←</a>
+  <div class="logo">حرفي.</div>
+  <button class="btn-lang" id="langBtn" onclick="toggleLang()">FR</button>
+</nav>
+
+<div class="container" id="content">
+  <div class="loading">⏳ جاري التحميل...</div>
+</div>
+
+<footer>صُنع بـ ❤️ للمغرب — <span>حرفي</span> © 2026
+  <br/><br/>
+  <a href="terms.html" id="footerTerms">شروط الاستخدام</a>
+  <a href="privacy.html" id="footerPrivacy">سياسة الخصوصية</a>
+</footer>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqF510_qVbJxImCP94Sl9uE7srF2u1Cuk",
+    authDomain: "hrafiy-app.firebaseapp.com",
+    projectId: "hrafiy-app",
+    storageBucket: "hrafiy-app.firebasestorage.app",
+    messagingSenderId: "668315848262",
+    appId: "1:668315848262:web:0323e4f8c932e040c80447"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const params = new URLSearchParams(window.location.search);
+  const artisanId = params.get('id');
+  let selectedStars = 0;
+
+  const specialtyMap = {
+    'كهربائي': 'Électricien', "سبّاك": 'Plombier', 'نجار خشب': 'Menuisier',
+    'ألومنيوم': 'Aluminium', 'جبصي': 'Plâtrier', 'صباغ': 'Peintre',
+    'ناقل بضائع': 'Transporteur', 'محاسب': 'Comptable'
+  };
+
+  const TR = {
+    ar: {
+      reviews: 'تقييم', about: '📝 عن الحرفي', noDesc: 'لم يتم إضافة وصف بعد',
+      callNow: 'اتصل الآن', comments: '💬 تعليقات الزبائن',
+      noReviews: 'لا يوجد تعليقات بعد — كن أول من يعلق!',
+      writeReview: '✍️ اكتب تعليقك', placeholder: 'اكتب تجربتك مع هذا الحرفي...',
+      submit: 'إرسال التعليق', thanks: '✅ شكراً! تم إرسال تعليقك.',
+      selectStars: 'يرجى اختيار عدد النجوم', writeComment: 'يرجى كتابة تعليق',
+      terms: 'شروط الاستخدام', privacy: 'سياسة الخصوصية',
+    },
+    fr: {
+      reviews: 'avis', about: '📝 À propos', noDesc: 'Aucune description disponible',
+      callNow: 'Appeler maintenant', comments: '💬 Avis des clients',
+      noReviews: 'Aucun avis pour le moment — Soyez le premier!',
+      writeReview: '✍️ Donnez votre avis', placeholder: 'Décrivez votre expérience...',
+      submit: 'Envoyer avis', thanks: '✅ Merci! Votre avis a été envoyé.',
+      selectStars: 'Veuillez sélectionner une note', writeComment: 'Veuillez écrire un commentaire',
+      terms: "Conditions d'utilisation", privacy: 'Politique de confidentialité',
+    }
+  };
+
+  let currentLang = localStorage.getItem('harfi_lang') || (navigator.language.startsWith('fr') ? 'fr' : 'ar');
+
+  function applyLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('harfi_lang', lang);
+    const isAr = lang === 'ar';
+    document.documentElement.lang = isAr ? 'ar' : 'fr';
+    document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+    document.getElementById('langBtn').textContent = isAr ? 'FR' : 'AR';
+    var ft = document.getElementById('footerTerms');
+    var fp = document.getElementById('footerPrivacy');
+    if (ft) ft.textContent = TR[lang].terms;
+    if (fp) fp.textContent = TR[lang].privacy;
+  }
+
+  function toggleLang() {
+    applyLang(currentLang === 'ar' ? 'fr' : 'ar');
+    loadArtisan();
+  }
+
+  function renderStars(n) { return '★'.repeat(n) + '☆'.repeat(5 - n); }
+
+  async function loadArtisan() {
+    var T = TR[currentLang];
+    if (!artisanId) { document.getElementById('content').innerHTML = '<div class="loading">❌</div>'; return; }
+    const doc = await db.collection("artisans").doc(artisanId).get();
+    if (!doc.exists) { document.getElementById('content').innerHTML = '<div class="loading">❌</div>'; return; }
+    const a = { id: doc.id, ...doc.data() };
+    renderArtisan(a);
+    loadReviews();
+  }
+
+  function renderArtisan(a) {
+    var T = TR[currentLang];
+    document.title = (a.name || '') + ' — حرفي';
+    document.getElementById('content').innerHTML = `
+      <div class="profile-card">
+        <div class="avatar" style="overflow:hidden;">${a.photo ? '<img src="'+a.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />' : (a.name||'ح')[0]}</div>
+        <div class="artisan-name">${a.name||''}</div>
+        <div class="artisan-specialty">${currentLang === 'fr' && specialtyMap[a.specialty] ? specialtyMap[a.specialty] : (a.specialty||'')}</div>
+        <div class="artisan-city">📍 ${a.city||''}</div>
+        <div class="stars-big">${renderStars(a.stars||1)}</div>
+        <div class="reviews-count">${a.review_count||0} ${T.reviews}</div>
+      </div>
+      <div class="description-card">
+        <div class="card-title">${T.about}</div>
+        <div class="description-text">${a.description || '<span class="no-desc">' + T.noDesc + '</span>'}</div>
+      </div>
+      ${a.gallery && a.gallery.length ? `
+      <div class="gallery-card">
+        <div class="card-title">🖼️ ${currentLang === 'fr' ? 'Réalisations' : 'معرض الأعمال'}</div>
+        <div class="slider-wrap">
+          <div class="slider-track" id="sliderTrack">
+            ${a.gallery.map(img => `<img src="${img}" />`).join('')}
+          </div>
+          ${a.gallery.length > 1 ? `
+          <button class="slider-btn prev" onclick="slideMove(-1)">‹</button>
+          <button class="slider-btn next" onclick="slideMove(1)">›</button>` : ''}
+        </div>
+        ${a.gallery.length > 1 ? `
+        <div class="slider-dots" id="sliderDots">
+          ${a.gallery.map((_, i) => `<div class="slider-dot ${i===0?'active':''}" onclick="slideTo(${i})"></div>`).join('')}
+        </div>` : ''}
+      </div>` : ''}
+      <div class="contact-card">
+        <div class="phone-num">📞 ${a.phone||''}</div>
+        <a href="tel:${a.phone||''}" class="btn-call">${T.callNow}</a>
+      </div>
+      <div class="reviews-card">
+        <div class="card-title">${T.comments}</div>
+        <div id="reviewsList"><div class="no-reviews">⏳</div></div>
+      </div>
+      <div class="add-review-card">
+        <div class="card-title">${T.writeReview}</div>
+        <div class="success-msg" id="successMsg">${T.thanks}</div>
+        <div class="stars-select">
+          <input type="radio" name="stars" id="s5" value="5"/><label for="s5" onclick="selectedStars=5">★</label>
+          <input type="radio" name="stars" id="s4" value="4"/><label for="s4" onclick="selectedStars=4">★</label>
+          <input type="radio" name="stars" id="s3" value="3"/><label for="s3" onclick="selectedStars=3">★</label>
+          <input type="radio" name="stars" id="s2" value="2"/><label for="s2" onclick="selectedStars=2">★</label>
+          <input type="radio" name="stars" id="s1" value="1"/><label for="s1" onclick="selectedStars=1">★</label>
+        </div>
+        <textarea id="reviewText" placeholder="${T.placeholder}"></textarea>
+        <button class="btn-submit" onclick="submitReview('${a.id}')">${T.submit}</button>
+      </div>
+    `;
+  }
+
+  async function loadReviews() {
+    var T = TR[currentLang];
+    const snapshot = await db.collection("artisans").doc(artisanId)
+      .collection("reviews").orderBy("created_at", "desc").get();
+    const reviews = snapshot.docs.map(d => d.data());
+    const list = document.getElementById('reviewsList');
+    if (!list) return;
+    if (!reviews.length) { list.innerHTML = '<div class="no-reviews">' + T.noReviews + '</div>'; return; }
+    list.innerHTML = reviews.map(r => `
+      <div class="review-item">
+        <div class="review-header">
+          <span class="review-stars">${'★'.repeat(r.stars||1)}${'☆'.repeat(5-(r.stars||1))}</span>
+          <span class="review-date">${r.created_at ? new Date(r.created_at.toDate()).toLocaleDateString('ar-MA') : ''}</span>
+        </div>
+        <div class="review-text">${r.comment||''}</div>
+      </div>
+    `).join('');
+  }
+
+  async function submitReview(id) {
+    var T = TR[currentLang];
+    const comment = document.getElementById('reviewText').value.trim();
+    if (!selectedStars) { alert(T.selectStars); return; }
+    if (!comment) { alert(T.writeComment); return; }
+    try {
+      await db.collection("artisans").doc(id).collection("reviews").add({
+        stars: selectedStars, comment: comment,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      const artisanDoc = await db.collection("artisans").doc(id).get();
+      const artisan = artisanDoc.data();
+      const newCount = (artisan.review_count || 0) + 1;
+      await db.collection("artisans").doc(id).update({
+        review_count: newCount, stars: calculateStars(newCount), rank_score: newCount
+      });
+      document.getElementById('successMsg').style.display = 'block';
+      document.getElementById('reviewText').value = '';
+      selectedStars = 0;
+      document.querySelectorAll('.stars-select input').forEach(i => i.checked = false);
+      loadReviews();
+      setTimeout(function() { document.getElementById('successMsg').style.display = 'none'; }, 3000);
+    } catch(e) { alert('خطأ: ' + e.message); }
+  }
+
+  function calculateStars(count) {
+    if (count >= 20) return 5;
+    if (count >= 15) return 4;
+    if (count >= 10) return 3;
+    if (count >= 5) return 2;
+    return 1;
+  }
+
+
+    var slideIndex = 0;
+    function slideMove(dir) {
+      var track = document.getElementById('sliderTrack');
+      var dots = document.getElementById('sliderDots');
+      if (!track) return;
+      var total = track.children.length;
+      slideIndex = (slideIndex + dir + total) % total;
+      track.style.transform = 'translateX(-' + (slideIndex * 100) + '%)';
+      if (dots) {
+        Array.from(dots.children).forEach(function(d, i) {
+          d.classList.toggle('active', i === slideIndex);
+        });
+      }
+    }
+    function slideTo(i) {
+      slideIndex = i;
+      var track = document.getElementById('sliderTrack');
+      var dots = document.getElementById('sliderDots');
+      if (!track) return;
+      track.style.transform = 'translateX(-' + (slideIndex * 100) + '%)';
+      if (dots) {
+        Array.from(dots.children).forEach(function(d, j) {
+          d.classList.toggle('active', j === slideIndex);
+        });
+      }
+    }
+  applyLang(currentLang);
+  loadArtisan();
+</script>
+
+</body>
+</html>
