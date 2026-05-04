@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>شكراً — ALLO-BRICALL</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #1a1a2e; --accent: #e8b84b; --bg: #f5f0e8; --card: #ffffff; --text: #1a1a2e; --muted: #6b6b7b; --border: #e0d8cc; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { background: var(--primary); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 24px; font-weight: 900; color: var(--accent); }
+    .logo span { color: white; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .btn-nav { background: var(--accent); color: var(--primary); padding: 8px 16px; border-radius: 8px; font-weight: 700; border: none; font-family: 'Cairo', sans-serif; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-block; }
+    #langBtn { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 12px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .hero { background: var(--primary); padding: 48px 24px 56px; text-align: center; }
+    .check-circle { width: 88px; height: 88px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 36px; color: var(--primary); animation: popIn 0.5s cubic-bezier(.17,.67,.4,1.4) both; }
+    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .hero h1 { font-size: 28px; font-weight: 900; color: white; margin-bottom: 10px; line-height: 1.4; animation: fadeUp 0.5s 0.3s ease both; opacity: 0; }
+    .hero p { font-size: 15px; color: rgba(255,255,255,0.7); animation: fadeUp 0.5s 0.45s ease both; opacity: 0; }
+    @keyframes fadeUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .section { padding: 32px 16px; max-width: 600px; margin: 0 auto; }
+    .section-title { font-size: 20px; font-weight: 900; margin-bottom: 20px; text-align: center; }
+    .steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+    .step-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; gap: 16px; animation: fadeUp 0.5s ease both; opacity: 0; }
+    .step-card:nth-child(1) { animation-delay: 0.1s; }
+    .step-card:nth-child(2) { animation-delay: 0.2s; }
+    .step-card:nth-child(3) { animation-delay: 0.3s; }
+    .step-num { width: 40px; height: 40px; background: var(--primary); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; flex-shrink: 0; }
+    .step-num.done { background: var(--accent); color: var(--primary); }
+    .step-info h3 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .step-info p { font-size: 13px; color: var(--muted); }
+    .cta-box { background: var(--card); border: 2px solid var(--accent); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; animation: fadeUp 0.5s 0.5s ease both; opacity: 0; }
+    .cta-box p { font-size: 14px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+    .btn-home { display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: white; padding: 12px 28px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; }
+    .btn-home:hover { opacity: 0.85; }
+    footer { text-align: center; padding: 20px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">ALLO<span>-BRICALL</span></div>
+  <div class="nav-right">
+    <a href="https://allo-bricall.ma" class="btn-nav" id="btnBack">العودة للرئيسية</a>
+    <button onclick="toggleLang()" id="langBtn">FR</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="check-circle"><i class="fas fa-check"></i></div>
+  <h1 id="heroTitle">تم استلام طلبك! <span style="color:var(--accent)">✓</span></h1>
+  <p id="heroSub">شكراً لثقتكم في ALLO-BRICALL — votre demande a bien été reçue</p>
+</div>
+
+<div class="section">
+  <div class="section-title" id="stepsTitle">ما الذي سيحدث الآن؟</div>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num done"><i class="fas fa-check"></i></div>
+      <div class="step-info">
+        <h3 id="step1Title">تم تسجيل طلبك ✓</h3>
+        <p id="step1Sub">Demande enregistrée avec succès</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-info">
+        <h3 id="step2Title">سيتم اختيار الحرفي المناسب</h3>
+        <p id="step2Sub">Un artisan qualifié près de chez vous sera sélectionné</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-info">
+        <h3 id="step3Title">سيتصل بك الحرفي قريباً</h3>
+        <p id="step3Sub">L'artisan vous contactera dans les plus brefs délais</p>
+      </div>
+    </div>
+  </div>
+  <div class="cta-box">
+    <p id="ctaText">هل تريد البحث عن حرفي آخر أو الاستفسار عن خدمة أخرى؟</p>
+    <a href="https://allo-bricall.ma" class="btn-home">
+      <i class="fas fa-arrow-right"></i>
+      <span id="btnHomeText">العودة إلى ALLO-BRICALL</span>
+    </a>
+  </div>
+</div>
+
+<footer>© 2026 ALLO-BRICALL — Casablanca, Maroc</footer>
+
+<script>
+  var T = {
+    ar: {
+      dir: 'rtl', htmlLang: 'ar', langBtn: 'FR',
+      btnBack: 'العودة للرئيسية',
+      heroTitle: 'تم استلام طلبك! <span style="color:var(--accent)">✓</span>',
+      heroSub: 'شكراً لثقتكم في ALLO-BRICALL — votre demande a bien été reçue',
+      stepsTitle: 'ما الذي سيحدث الآن؟',
+      step1Title: 'تم تسجيل طلبك ✓',
+      step1Sub: 'Demande enregistrée avec succès',
+      step2Title: 'سيتم اختيار الحرفي المناسب',
+      step2Sub: 'Un artisan qualifié près de chez vous sera sélectionné',
+      step3Title: 'سيتصل بك الحرفي قريباً',
+      step3Sub: "L'artisan vous contactera dans les plus brefs délais",
+      ctaText: 'هل تريد البحث عن حرفي آخر أو الاستفسار عن خدمة أخرى؟',
+      btnHomeText: 'العودة إلى ALLO-BRICALL'
+    },
+    fr: {
+      dir: 'ltr', htmlLang: 'fr', langBtn: 'AR',
+      btnBack: "Retour à l'accueil",
+      heroTitle: 'Demande reçue ! <span style="color:var(--accent)">✓</span>',
+      heroSub: "Merci pour votre confiance — شكراً لثقتكم في ALLO-BRICALL",
+      stepsTitle: 'Que va-t-il se passer maintenant ?',
+      step1Title: 'Demande enregistrée ✓',
+      step1Sub: 'تم تسجيل طلبك بنجاح',
+      step2Title: 'Sélection de votre artisan',
+      step2Sub: 'سيتم اختيار الحرفي المناسب قريباً منك',
+      step3Title: "L'artisan vous contacte",
+      step3Sub: 'سيتصل بك الحرفي في أقرب وقت ممكن',
+      ctaText: "Besoin d'un autre artisan ou d'un autre service ?",
+      btnHomeText: 'Retour à ALLO-BRICALL'
+    }
+  };
+
+  var lang = localStorage.getItem('harfi_lang') ||
+    (navigator.language.startsWith('fr') ? 'fr' : 'ar');
+
+  function applyLang(l) {
+    lang = l;
+    localStorage.setItem('harfi_lang', l);
+    var t = T[l];
+    document.documentElement.lang = t.htmlLang;
+    document.documentElement.dir = t.dir;
+    document.getElementById('langBtn').textContent = t.langBtn;
+    document.getElementById('btnBack').textContent = t.btnBack;
+    document.getElementById('heroTitle').innerHTML = t.heroTitle;
+    document.getElementById('heroSub').textContent = t.heroSub;
+    document.getElementById('stepsTitle').textContent = t.stepsTitle;
+    document.getElementById('step1Title').textContent = t.step1Title;
+    document.getElementById('step1Sub').textContent = t.step1Sub;
+    document.getElementById('step2Title').textContent = t.step2Title;
+    document.getElementById('step2Sub').textContent = t.step2Sub;
+    document.getElementById('step3Title').textContent = t.step3Title;
+    document.getElementById('step3Sub').textContent = t.step3Sub;
+    document.getElementById('ctaText').textContent = t.ctaText;
+    document.getElementById('btnHomeText').textContent = t.btnHomeText;
+  }
+
+  function toggleLang() { applyLang(lang === 'ar' ? 'fr' : 'ar'); }
+
+  applyLang(lang);
+</script>
+
+</body>
+</html>
