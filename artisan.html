@@ -361,7 +361,16 @@
         });
       } catch(e) { console.log('doCall error:', e); }
     }
-
+if (artisanId && navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(function(position) {
+    db.collection('artisans').doc(artisanId).update({
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      online: true
+    });
+  });
+}
   applyLang(currentLang);
   loadArtisan();
 </script>
