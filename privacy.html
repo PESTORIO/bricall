@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سياسة الخصوصية | Politique de confidentialité - Allo-Bricall</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #e05a00;
+      --primary-light: #ff7a20;
+      --dark: #1a1a2e;
+      --gray: #f5f5f5;
+      --text: #333;
+      --text-light: #666;
+      --border: #e0e0e0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      color: var(--text);
+      background: #fff;
+      line-height: 1.8;
+    }
+
+    header {
+      background: var(--dark);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .logo span { color: var(--primary-light); }
+
+    .lang-switch {
+      display: flex;
+      gap: 10px;
+    }
+
+    .lang-btn {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 2px solid var(--primary-light);
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s;
+    }
+
+    .lang-btn.active, .lang-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--dark) 0%, #16213e 100%);
+      padding: 60px 40px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 span { color: var(--primary-light); }
+
+    .hero p {
+      color: #aaa;
+      font-size: 15px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 50px 30px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .section-header {
+      background: var(--gray);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .section-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .section-body {
+      padding: 20px 24px;
+      font-size: 15px;
+      color: var(--text-light);
+    }
+
+    .section-body p { margin-bottom: 10px; }
+    .section-body ul { padding-right: 20px; padding-left: 0; }
+    .section-body li { margin-bottom: 6px; list-style: disc; }
+
+    .date-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      margin-bottom: 30px;
+    }
+
+    footer {
+      background: var(--dark);
+      color: #aaa;
+      text-align: center;
+      padding: 24px;
+      font-size: 14px;
+    }
+
+    footer a { color: var(--primary-light); text-decoration: none; }
+
+    /* French version */
+    [lang="fr"] .ar-content { display: none; }
+    [lang="fr"] .fr-content { display: block; }
+    [lang="ar"] .fr-content { display: none; }
+    [lang="ar"] .ar-content { display: block; }
+
+    [lang="fr"] { direction: ltr; font-family: 'Poppins', sans-serif; }
+    [lang="fr"] .section-body ul { padding-left: 20px; padding-right: 0; }
+
+    @media (max-width: 600px) {
+      header { padding: 14px 20px; }
+      .hero { padding: 40px 20px; }
+      .hero h1 { font-size: 26px; }
+      .container { padding: 30px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">Allo-<span>Bricall</span></a>
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('ar')">العربية</button>
+    <button class="lang-btn" onclick="setLang('fr')">Français</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="ar-content">
+    <h1>سياسة <span>الخصوصية</span></h1>
+    <p>نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية</p>
+  </div>
+  <div class="fr-content">
+    <h1>Politique de <span>confidentialité</span></h1>
+    <p>Nous respectons votre vie privée et nous nous engageons à protéger vos données personnelles</p>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="container">
+
+  <div class="ar-content">
+    <div class="date-badge">آخر تحديث: ماي 2025</div>
+  </div>
+  <div class="fr-content">
+    <div class="date-badge">Dernière mise à jour : Mai 2025</div>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">📋</div>
+      <div class="ar-content"><h2>مقدمة</h2></div>
+      <div class="fr-content"><h2>Introduction</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <p>مرحباً بك في منصة <strong>Allo-Bricall</strong>. نحن نلتزم بحماية خصوصيتك وبياناتك الشخصية. تصف هذه السياسة كيفية جمع معلوماتك واستخدامها وحمايتها عند استخدام موقعنا.</p>
+      </div>
+      <div class="fr-content">
+        <p>Bienvenue sur la plateforme <strong>Allo-Bricall</strong>. Nous nous engageons à protéger votre vie privée et vos données personnelles. Cette politique décrit comment nous collectons, utilisons et protégeons vos informations lors de l'utilisation de notre site.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div class="ar-content"><h2>البيانات التي نجمعها</h2></div>
+      <div class="fr-content"><h2>Données que nous collectons</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <ul>
+          <li>الاسم الكامل ورقم الهاتف</li>
+          <li>عنوان البريد الإلكتروني</li>
+          <li>الموقع الجغرافي (مدينة الإقامة)</li>
+          <li>سجل المكالمات والطلبات عبر المنصة</li>
+          <li>بيانات الاستخدام وسجلات الدخول</li>
+        </ul>
+      </div>
+      <div class="fr-content">
+        <ul>
+          <li>Nom complet et numéro de téléphone</li>
+          <li>Adresse e-mail</li>
+          <li>Localisation géographique (ville de résidence)</li>
+          <li>Historique des appels et des demandes via la plateforme</li>
+          <li>Données d'utilisation et journaux de connexion</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div class="ar-content"><h2>كيف نستخدم بياناتك</h2></div>
+      <div class="fr-content"><h2>Comment nous utilisons vos données</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <ul>
+          <li>ربط الزبائن بالحرفيين المناسبين</li>
+          <li>تتبع المكالمات وإدارة العمولات</li>
+          <li>تحسين خدمات المنصة وتجربة المستخدم</li>
+          <li>إرسال إشعارات وتحديثات متعلقة بطلباتك</li>
+          <li>ضمان أمان المنصة ومنع الاحتيال</li>
+        </ul>
+      </div>
+      <div class="fr-content">
+        <ul>
+          <li>Mettre en relation les clients avec les artisans appropriés</li>
+          <li>Suivre les appels et gérer les commissions</li>
+          <li>Améliorer les services de la plateforme et l'expérience utilisateur</li>
+          <li>Envoyer des notifications et mises à jour relatives à vos demandes</li>
+          <li>Assurer la sécurité de la plateforme et prévenir les fraudes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🔒</div>
+      <div class="ar-content"><h2>حماية بياناتك</h2></div>
+      <div class="fr-content"><h2>Protection de vos données</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <p>نستخدم تقنيات متقدمة لحماية بياناتك من الوصول غير المصرح به. لا نبيع أو نشارك بياناتك الشخصية مع أطراف ثالثة بدون موافقتك الصريحة.</p>
+      </div>
+      <div class="fr-content">
+        <p>Nous utilisons des technologies avancées pour protéger vos données contre tout accès non autorisé. Nous ne vendons ni ne partageons vos données personnelles avec des tiers sans votre consentement explicite.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">📞</div>
+      <div class="ar-content"><h2>تتبع المكالمات</h2></div>
+      <div class="fr-content"><h2>Suivi des appels</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <p>تقوم المنصة بتسجيل ومتابعة المكالمات التي تتم عبر الموقع بين الزبائن والحرفيين. يتم ذلك بهدف ضمان جودة الخدمة وإدارة العمولات بشكل شفاف. جميع المكالمات مسجلة ومتابعة من المنصة.</p>
+      </div>
+      <div class="fr-content">
+        <p>La plateforme enregistre et suit les appels effectués via le site entre les clients et les artisans. Ceci est fait dans le but d'assurer la qualité du service et de gérer les commissions de manière transparente. Tous les appels sont enregistrés et suivis par la plateforme.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">✉️</div>
+      <div class="ar-content"><h2>تواصل معنا</h2></div>
+      <div class="fr-content"><h2>Contactez-nous</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <p>إذا كان لديك أي سؤال حول سياسة الخصوصية، يمكنك التواصل معنا عبر الموقع: <strong>https://allo-bricall.ma</strong></p>
+      </div>
+      <div class="fr-content">
+        <p>Si vous avez des questions concernant notre politique de confidentialité, vous pouvez nous contacter via le site : <strong>https://allo-bricall.ma</strong></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2025 Allo-Bricall — <a href="/">allo-bricall.ma</a></p>
+</footer>
+
+<script>
+  function setLang(lang) {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
