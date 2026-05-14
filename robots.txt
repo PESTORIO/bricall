@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://allo-bricall.ma/sitemap.xml
