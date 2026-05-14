@@ -1,6 +1,7 @@
+# Cloudflare Content-Signal: search=yes,ai-train=no
+
 User-agent: *
 Allow: /
-Disallow:
 
 User-agent: Amazonbot
 Disallow: /
