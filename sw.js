@@ -21,20 +21,6 @@ self.addEventListener('fetch', e => {
   );
 });
 
-// إشعارات حتى لو الأدمن مسدود
-self.addEventListener('push', e => {
-  const data = e.data ? e.data.json() : { title: '🔔 إشعار جديد', body: '' };
-  e.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: 'https://allo-bricall.ma/favicon.ico',
-      badge: 'https://allo-bricall.ma/favicon.ico',
-      tag: 'allo-bricall-alert',
-      requireInteraction: true,
-      vibrate: [200, 100, 200]
-    })
-  );
-});
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
