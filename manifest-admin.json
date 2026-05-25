@@ -1,0 +1,22 @@
+{
+  "name": "ALLO-BRICALL Admin",
+  "short_name": "AB Admin",
+  "description": "لوحة تحكم الأدمن — ALLO-BRICALL",
+  "start_url": "/bx7k9m.html",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon-192x192-admin.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512x512-admin.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
