@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ لوحة التحكم - ALLO-BRICALL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f5f0e8;
+      color: #1a1a2e;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header {
+      background: #1a1a2e;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0d8cc;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .tab.active {
+      color: #e8b84b;
+      border-bottom-color: #e8b84b;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border: 1px solid #e0e0e0;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+    }
+    button {
+      padding: 10px 20px;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+    }
+    button:hover { background: #2a2a5e; }
+    .btn-danger { background: #dc3545; }
+    .btn-danger:hover { background: #c82333; }
+    .list-item {
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .loading { text-align: center; color: #666; padding: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>⚙️ لوحة التحكم</h1>
+    <button onclick="logout()">🚪 تسجيل الخروج</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showSection('dashboard', this)">📊 لوحة التحكم</button>
+    <button class="tab" onclick="showSection('artisans', this)">👷 الحرفيون</button>
+    <button class="tab" onclick="showSection('blog', this)">📝 البلوغ</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="section active">
+    <div class="card">
+      <h2>📊 الإحصائيات</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+        <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: 900;">-</div>
+          <div style="font-size: 12px; color: #666;">الحرفيون</div>
+        </div>
+        <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: 900;">-</div>
+          <div style="font-size: 12px; color: #666;">المكالمات</div>
+        </div>
+        <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: 900;">-</div>
+          <div style="font-size: 12px; color: #666;">المقالات</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTISANS -->
+  <div id="artisans" class="section">
+    <div class="card">
+      <h2>👷 إدارة الحرفيين</h2>
+      <h3 style="margin-top: 20px; margin-bottom: 10px;">إضافة حرفي جديد</h3>
+      <input type="text" id="artisanName" placeholder="الاسم">
+      <input type="tel" id="artisanPhone" placeholder="الهاتف">
+      <select id="artisanSpecialty">
+        <option>⚡ كهربائي</option>
+        <option>🔧 سباك</option>
+        <option>🪵 نجار</option>
+        <option>🎨 صباغ</option>
+      </select>
+      <button onclick="addArtisan()">➕ إضافة</button>
+      <div id="artisansList" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <!-- BLOG -->
+  <div id="blog" class="section">
+    <div class="card">
+      <h2>📝 إدارة البلوغ</h2>
+      <h3 style="margin-top: 20px; margin-bottom: 10px;">مقالة جديدة</h3>
+      <input type="text" id="blogTitle" placeholder="العنوان">
+      <select id="blogSpecialty">
+        <option>⚡ كهربائي</option>
+        <option>🔧 سباك</option>
+        <option>🪵 نجار</option>
+      </select>
+      <input type="url" id="blogImage" placeholder="رابط الصورة (اختياري)">
+      <textarea id="blogContent" rows="6" placeholder="محتوى المقالة..."></textarea>
+      <button onclick="saveBlog()">💾 نشر</button>
+      <div id="blogList" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqF510_qVbJxImCP94Sl9uE7srF2u1Cuk",
+    authDomain: "hrafiy-app.firebaseapp.com",
+    projectId: "hrafiy-app",
+    storageBucket: "hrafiy-app.firebasestorage.app",
+    messagingSenderId: "668315848262",
+    appId: "1:668315848262:web:0323e4f8c932e040c80447"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // ════════════════════════════════
+  // UI FUNCTIONS
+  // ════════════════════════════════
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    
+    if (id === 'artisans') loadArtisans();
+    if (id === 'blog') loadBlog();
+  }
+
+  function logout() {
+    if (confirm('واش متأكد تخرج؟')) {
+      sessionStorage.clear();
+      location.reload();
+    }
+  }
+
+  // ════════════════════════════════
+  // ARTISANS
+  // ════════════════════════════════
+  async function addArtisan() {
+    const name = document.getElementById('artisanName').value;
+    const phone = document.getElementById('artisanPhone').value;
+    const specialty = document.getElementById('artisanSpecialty').value;
+
+    if (!name || !phone) {
+      alert('ملا الاسم والهاتف');
+      return;
+    }
+
+    try {
+      await db.collection('artisans').add({
+        name, phone, specialty,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert('✅ تم الإضافة!');
+      document.getElementById('artisanName').value = '';
+      document.getElementById('artisanPhone').value = '';
+      loadArtisans();
+    } catch (e) {
+      alert('❌ خطأ: ' + e.message);
+    }
+  }
+
+  async function loadArtisans() {
+    try {
+      const snap = await db.collection('artisans').get();
+      const list = document.getElementById('artisansList');
+      
+      if (snap.empty) {
+        list.innerHTML = '<div class="loading">لا يوجد حرفيون بعد</div>';
+        return;
+      }
+
+      list.innerHTML = snap.docs.map(doc => {
+        const data = doc.data();
+        return `
+          <div class="list-item">
+            <div>
+              <strong>${data.name}</strong><br>
+              <small>${data.specialty} • ${data.phone}</small>
+            </div>
+            <button class="btn-danger" onclick="deleteArtisan('${doc.id}')">🗑️</button>
+          </div>`;
+      }).join('');
+    } catch (e) {
+      console.error('Error loading artisans:', e);
+    }
+  }
+
+  async function deleteArtisan(id) {
+    if (!confirm('واش متأكد تحذف؟')) return;
+    try {
+      await db.collection('artisans').doc(id).delete();
+      loadArtisans();
+    } catch (e) {
+      alert('❌ خطأ: ' + e.message);
+    }
+  }
+
+  // ════════════════════════════════
+  // BLOG
+  // ════════════════════════════════
+  async function saveBlog() {
+    const title = document.getElementById('blogTitle').value;
+    const specialty = document.getElementById('blogSpecialty').value;
+    const image = document.getElementById('blogImage').value;
+    const content = document.getElementById('blogContent').value;
+
+    if (!title || !content) {
+      alert('ملا العنوان والمحتوى');
+      return;
+    }
+
+    try {
+      await db.collection('blog_posts').add({
+        title, specialty, image, content,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert('✅ تم النشر!');
+      document.getElementById('blogTitle').value = '';
+      document.getElementById('blogImage').value = '';
+      document.getElementById('blogContent').value = '';
+      loadBlog();
+    } catch (e) {
+      alert('❌ خطأ: ' + e.message);
+    }
+  }
+
+  async function loadBlog() {
+    try {
+      const snap = await db.collection('blog_posts').orderBy('created_at', 'desc').get();
+      const list = document.getElementById('blogList');
+      
+      if (snap.empty) {
+        list.innerHTML = '<div class="loading">لا يوجد مقالات بعد</div>';
+        return;
+      }
+
+      list.innerHTML = snap.docs.map(doc => {
+        const data = doc.data();
+        return `
+          <div class="list-item">
+            <div>
+              <strong>${data.title}</strong><br>
+              <small>${data.specialty} • ${(data.content || '').slice(0, 50)}...</small>
+            </div>
+            <button class="btn-danger" onclick="deleteBlog('${doc.id}')">🗑️</button>
+          </div>`;
+      }).join('');
+    } catch (e) {
+      console.error('Error loading blog:', e);
+    }
+  }
+
+  async function deleteBlog(id) {
+    if (!confirm('واش متأكد تحذف المقالة؟')) return;
+    try {
+      await db.collection('blog_posts').doc(id).delete();
+      loadBlog();
+    } catch (e) {
+      alert('❌ خطأ: ' + e.message);
+    }
+  }
+
+  // ════════════════════════════════
+  // INIT
+  // ════════════════════════════════
+  window.showSection = showSection;
+  window.logout = logout;
+  window.addArtisan = addArtisan;
+  window.deleteArtisan = deleteArtisan;
+  window.saveBlog = saveBlog;
+  window.deleteBlog = deleteBlog;
+  window.loadArtisans = loadArtisans;
+  window.loadBlog = loadBlog;
+</script>
+
+</body>
+</html>
