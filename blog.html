@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 مدونة ALLO-BRICALL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #1a1a2e; --accent: #e8b84b; --bg: #f5f0e8; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--primary); }
+    
+    .navbar {
+      background: var(--primary);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar a {
+      background: var(--accent);
+      color: var(--primary);
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    
+    .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    
+    .articles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    
+    .article-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .article-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .article-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    .article-content {
+      padding: 16px;
+    }
+    
+    .article-specialty {
+      background: #f0ebe0;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    
+    .article-title {
+      font-size: 16px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+    
+    .article-excerpt {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    
+    .read-more {
+      color: var(--accent);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal.active { display: flex; }
+    
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 30px;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--primary);
+    }
+    
+    .modal-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .modal-specialty {
+      background: #f0ebe0;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+    
+    .modal-body {
+      font-size: 14px;
+      line-height: 2;
+      color: #555;
+      margin-bottom: 30px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary), #2a2a5e);
+      color: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .cta-section h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    
+    .cta-section p {
+      font-size: 13px;
+      margin-bottom: 16px;
+      opacity: 0.9;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--primary);
+      padding: 14px 40px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .cta-button:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+    
+    .loading { text-align: center; color: #999; padding: 40px; }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>📝 مدونة ALLO-BRICALL</h1>
+  <a href="https://allo-bricall.ma">← الموقع الرئيسي</a>
+</div>
+
+<div class="container">
+  <div id="articlesList" class="articles-grid">
+    <div class="loading">⏳ جاري تحميل المقالات...</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="articleModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    
+    <img id="modalImage" class="modal-image" src="" alt="">
+    
+    <div class="modal-specialty" id="modalSpecialty"></div>
+    <h1 class="modal-title" id="modalTitle"></h1>
+    
+    <div class="modal-body" id="modalBody"></div>
+    
+    <!-- CTA -->
+    <div class="cta-section">
+      <h3>🔧 بدك تصلح المشكلة؟</h3>
+      <p>اتصل بحرفي متخصص من ALLO-BRICALL الآن</p>
+      <button class="cta-button" id="ctaBtn">☎️ اتصل بالحرفي</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqF510_qVbJxImCP94Sl9uE7srF2u1Cuk",
+    authDomain: "hrafiy-app.firebaseapp.com",
+    projectId: "hrafiy-app",
+    storageBucket: "hrafiy-app.firebasestorage.app",
+    messagingSenderId: "668315848262",
+    appId: "1:668315848262:web:0323e4f8c932e040c80447"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  
+  // Mapping التخصصات
+  const specialtyMap = {
+    'electricien-casablanca': 'electricians.html',
+    '⚡ كهربائي': 'electricians.html',
+    'plombier-casablanca': 'plumbers.html',
+    '🔧 سباك': 'plumbers.html',
+    'menuisier-casablanca': 'carpenters.html',
+    '🪵 نجار': 'carpenters.html',
+    'peintre-casablanca': 'painters.html',
+    '🎨 صباغ': 'painters.html'
+  };
+  
+  let currentArtisanLink = 'artisans.html';
+  
+  async function loadArticles() {
+    try {
+      const snap = await db.collection('blog_posts').orderBy('created_at', 'desc').get();
+      const articles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderArticles(articles);
+    } catch(e) {
+      console.error('Error:', e);
+      document.getElementById('articlesList').innerHTML = '<div class="loading">خطأ في التحميل</div>';
+    }
+  }
+  
+  function renderArticles(articles) {
+    const list = document.getElementById('articlesList');
+    
+    if (!articles.length) {
+      list.innerHTML = '<div class="loading">لا توجد مقالات</div>';
+      return;
+    }
+    
+    list.innerHTML = articles.map((article, idx) => `
+      <div class="article-card" onclick="openArticle(${idx})">
+        <img src="${article.image || 'https://via.placeholder.com/320x200'}" alt="${article.title}" class="article-image" onerror="this.src='https://via.placeholder.com/320x200'">
+        <div class="article-content">
+          <div class="article-specialty">${article.specialty || '📝'}</div>
+          <h3 class="article-title">${article.title || 'بدون عنوان'}</h3>
+          <p class="article-excerpt">${(article.content || '').slice(0, 100)}...</p>
+          <span class="read-more">اقرأ المقالة كاملة →</span>
+        </div>
+      </div>
+    `).join('');
+    
+    window.articlesList = articles;
+  }
+  
+  function openArticle(idx) {
+    const article = window.articlesList[idx];
+    document.getElementById('modalImage').src = article.image || 'https://via.placeholder.com/700x300';
+    document.getElementById('modalSpecialty').textContent = article.specialty || '📝';
+    document.getElementById('modalTitle').textContent = article.title;
+    document.getElementById('modalBody').textContent = article.content;
+    
+    // استخدم الرابط المحفوظ أولاً! (أولوية أعلى)
+    // بعدين الـ mapping التلقائي
+    // بعدين القيمة الافتراضية
+    currentArtisanLink = article.artisanLink || specialtyMap[article.specialty] || 'artisans.html';
+    
+    console.log('Article:', article.title);
+    console.log('Artisan Link from article:', article.artisanLink);
+    console.log('Current Artisan Link:', currentArtisanLink);
+    
+    document.getElementById('articleModal').classList.add('active');
+  }
+  
+  function closeModal() {
+    document.getElementById('articleModal').classList.remove('active');
+  }
+  
+  function goToArtisans() {
+    console.log('Redirecting to:', currentArtisanLink);
+    if (currentArtisanLink && currentArtisanLink.trim()) {
+      window.location.href = currentArtisanLink;
+    } else {
+      console.error('No artisan link found!');
+      alert('خطأ: رابط الحرفيين غير محفوظ بشكل صحيح');
+    }
+  }
+  
+  document.getElementById('articleModal').addEventListener('click', (e) => {
+    if (e.target.id === 'articleModal') closeModal();
+  });
+  
+  // Event listener للزر
+  document.getElementById('ctaBtn').addEventListener('click', goToArtisans);
+  
+  loadArticles();
+</script>
+
+</body>
+</html>
