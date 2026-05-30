@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 مدونة ALLO-BRICALL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #1a1a2e; --accent: #e8b84b; --bg: #f5f0e8; }
+    body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--primary); }
+    
+    .navbar {
+      background: var(--primary);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar a {
+      background: var(--accent);
+      color: var(--primary);
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    
+    .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    
+    .articles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    
+    .article-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .article-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    .article-content {
+      padding: 16px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .article-specialty {
+      background: #f0ebe0;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    
+    .article-title {
+      font-size: 16px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+    
+    .article-excerpt {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      flex-grow: 1;
+    }
+    
+    .article-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+      gap: 10px;
+    }
+    
+    .article-date {
+      font-size: 12px;
+      color: #999;
+    }
+    
+    .artisan-link {
+      background: var(--accent);
+      color: var(--primary);
+      padding: 8px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+      transition: all 0.3s;
+    }
+    .artisan-link:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+    
+    .loading { text-align: center; color: #999; padding: 40px; }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>📝 مدونة ALLO-BRICALL</h1>
+  <a href="https://allo-bricall.ma">← الموقع الرئيسي</a>
+</div>
+
+<div class="container">
+  <div id="articlesList" class="articles-grid">
+    <div class="loading">⏳ جاري تحميل المقالات...</div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqF510_qVbJxImCP94Sl9uE7srF2u1Cuk",
+    authDomain: "hrafiy-app.firebaseapp.com",
+    projectId: "hrafiy-app",
+    storageBucket: "hrafiy-app.firebasestorage.app",
+    messagingSenderId: "668315848262",
+    appId: "1:668315848262:web:0323e4f8c932e040c80447"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  
+  // Mapping التخصصات لصفحاتها
+  const specialtyMap = {
+    'electricien-casablanca': 'electricians.html',
+    '⚡ كهربائي': 'electricians.html',
+    'plombier-casablanca': 'plumbers.html',
+    '🔧 سباك': 'plumbers.html',
+    'menuisier-casablanca': 'carpenters.html',
+    '🪵 نجار': 'carpenters.html',
+    'peintre-casablanca': 'painters.html',
+    '🎨 صباغ': 'painters.html'
+  };
+  
+  async function loadArticles() {
+    try {
+      const snap = await db.collection('blog_posts').orderBy('created_at', 'desc').get();
+      const articles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderArticles(articles);
+    } catch(e) {
+      console.error('Error:', e);
+      document.getElementById('articlesList').innerHTML = '<div class="loading">خطأ في تحميل المقالات</div>';
+    }
+  }
+  
+  function renderArticles(articles) {
+    const list = document.getElementById('articlesList');
+    
+    if (!articles.length) {
+      list.innerHTML = '<div class="loading">لا توجد مقالات</div>';
+      return;
+    }
+    
+    list.innerHTML = articles.map(article => {
+      const artisanPage = specialtyMap[article.specialty] || 'artisans.html';
+      const date = article.created_at ? new Date(article.created_at.toDate()).toLocaleDateString('ar-MA') : 'قريباً';
+      
+      return `
+        <div class="article-card">
+          <img src="${article.image || 'https://via.placeholder.com/320x200'}" alt="${article.title}" class="article-image" onerror="this.src='https://via.placeholder.com/320x200'">
+          <div class="article-content">
+            <div class="article-specialty">${article.specialty || '📝'}</div>
+            <h3 class="article-title">${article.title || 'بدون عنوان'}</h3>
+            <p class="article-excerpt">${(article.content || '').slice(0, 120)}...</p>
+            <div class="article-footer">
+              <span class="article-date">📅 ${date}</span>
+              <a href="${artisanPage}" class="artisan-link">🔧 اتصل</a>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  loadArticles();
+</script>
+
+</body>
+</html>
