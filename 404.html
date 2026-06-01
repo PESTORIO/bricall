@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALLO-BRICALL</title>
+  <script>
+    (function() {
+      var path = (window.location.pathname || '/').toLowerCase();
+      var search = window.location.search || '';
+
+      // حماية من الحلقة اللانهائية: إذا كنا جينا من تحويل سابق، وقف
+      if (search.indexOf('_r=1') !== -1) {
+        return; // نبقى فالصفحة ونبيّن الروابط اليدوية
+      }
+
+      // 1) الجذر مع زيادة انستجرام/فيسبوك (?utm.../?fbclid...) → الرئيسية نظيفة
+      if (path === '/' || path === '' || path.indexOf('index') !== -1) {
+        window.location.replace('/');
+        return;
+      }
+
+      // 2) صفحة معروفة بزيادة ?... → نضيف .html
+      // مثلا /blog?fbclid=xxx → /blog.html
+      var clean = path.replace(/^\/+|\/+$/g, ''); // نحيّد / من البداية والنهاية
+      if (clean) {
+        window.location.replace('/' + clean + '.html?_r=1');
+        return;
+      }
+
+      // غير هادشي → الرئيسية
+      window.location.replace('/');
+    })();
+  </script>
+</head>
+<body style="font-family: 'Cairo', sans-serif; text-align:center; padding:60px 20px; background:#f5f0e8;">
+  <h2 style="color:#1a1a2e;">ALLO-BRICALL</h2>
+  <p style="color:#666;">⏳ جاري تحويلك للموقع...</p>
+  <p style="margin-top:30px;">
+    <a href="/" style="background:#e8b84b; color:#1a1a2e; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:bold;">
+      → الذهاب للصفحة الرئيسية
+    </a>
+  </p>
+</body>
+</html>
