@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شروط الاستخدام | Conditions d'utilisation - Allo-Bricall</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #e05a00;
+      --primary-light: #ff7a20;
+      --dark: #1a1a2e;
+      --gray: #f5f5f5;
+      --text: #333;
+      --text-light: #666;
+      --border: #e0e0e0;
+      --success: #2e7d32;
+      --warning: #e65100;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      color: var(--text);
+      background: #fafafa;
+      line-height: 1.9;
+    }
+
+    header {
+      background: var(--dark);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .logo span { color: var(--primary-light); }
+
+    .lang-switch { display: flex; gap: 10px; }
+
+    .lang-btn {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 2px solid var(--primary-light);
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s;
+    }
+
+    .lang-btn.active, .lang-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--dark) 0%, #16213e 100%);
+      padding: 60px 40px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .hero h1 { font-size: 34px; font-weight: 700; margin-bottom: 10px; }
+    .hero h1 span { color: var(--primary-light); }
+    .hero p { color: #aaa; font-size: 15px; }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 50px 30px;
+    }
+
+    .date-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      margin-bottom: 30px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .section-header {
+      background: var(--gray);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .section-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .section-body {
+      padding: 20px 24px;
+      font-size: 15px;
+      color: var(--text-light);
+    }
+
+    .section-body p { margin-bottom: 10px; }
+    .section-body ul { padding-right: 20px; padding-left: 0; }
+    .section-body li { margin-bottom: 8px; list-style: disc; }
+
+    .highlight-box {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .highlight-box.orange {
+      background: #fff3e0;
+      border-right: 4px solid var(--primary);
+      border-left: none;
+      color: #bf360c;
+    }
+
+    .highlight-box.green {
+      background: #e8f5e9;
+      border-right: 4px solid var(--success);
+      border-left: none;
+      color: #1b5e20;
+    }
+
+    .highlight-box.blue {
+      background: #e3f2fd;
+      border-right: 4px solid #1565c0;
+      border-left: none;
+      color: #0d47a1;
+    }
+
+    .price-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--dark);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-top: 16px;
+      color: #fff;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .price-item { text-align: center; }
+    .price-item .amount {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary-light);
+    }
+    .price-item .label { font-size: 13px; color: #aaa; margin-top: 4px; }
+
+    .divider {
+      width: 1px;
+      height: 50px;
+      background: #333;
+    }
+
+    footer {
+      background: var(--dark);
+      color: #aaa;
+      text-align: center;
+      padding: 24px;
+      font-size: 14px;
+    }
+
+    footer a { color: var(--primary-light); text-decoration: none; }
+
+    [lang="fr"] .ar-content { display: none; }
+    [lang="fr"] .fr-content { display: block; }
+    [lang="ar"] .fr-content { display: none; }
+    [lang="ar"] .ar-content { display: block; }
+
+    [lang="fr"] {
+      direction: ltr;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    [lang="fr"] .section-body ul { padding-left: 20px; padding-right: 0; }
+    [lang="fr"] .highlight-box.orange { border-left: 4px solid var(--primary); border-right: none; }
+    [lang="fr"] .highlight-box.green { border-left: 4px solid var(--success); border-right: none; }
+    [lang="fr"] .highlight-box.blue { border-left: 4px solid #1565c0; border-right: none; }
+
+    @media (max-width: 600px) {
+      header { padding: 14px 20px; }
+      .hero { padding: 40px 20px; }
+      .hero h1 { font-size: 24px; }
+      .container { padding: 30px 16px; }
+      .price-card { justify-content: center; }
+      .divider { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">Allo-<span>Bricall</span></a>
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('ar', event)">العربية</button>
+    <button class="lang-btn" onclick="setLang('fr', event)">Français</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="ar-content">
+    <h1>شروط <span>الاستخدام</span></h1>
+    <p>يرجى قراءة هذه الشروط بعناية قبل استخدام المنصة</p>
+  </div>
+  <div class="fr-content">
+    <h1>Conditions <span>d'utilisation</span></h1>
+    <p>Veuillez lire attentivement ces conditions avant d'utiliser la plateforme</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="ar-content"><div class="date-badge">آخر تحديث: يونيو 2026</div></div>
+  <div class="fr-content"><div class="date-badge">Dernière mise à jour : Juin 2026</div></div>
+
+  <!-- Section 1: Abonnement -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">💳</div>
+      <div class="ar-content"><h2>الاشتراك والعمولة</h2></div>
+      <div class="fr-content"><h2>Abonnement et commission</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <p>يلتزم كل حرفي مسجل في منصة <strong>Allo-Bricall</strong> بما يلي:</p>
+        <div class="price-card">
+          <div class="price-item">
+            <div class="amount">100 دره</div>
+            <div class="label">اشتراك شهري لدعم الإعلان</div>
+          </div>
+          <div class="divider"></div>
+          <div class="price-item">
+            <div class="amount">10%</div>
+            <div class="label">عمولة من كل عمل منجز</div>
+          </div>
+          <div class="divider"></div>
+          <div class="price-item">
+            <div class="amount">كل سبت</div>
+            <div class="label">موعد أداء العمولة الأسبوعية</div>
+          </div>
+        </div>
+        <div class="highlight-box orange" style="margin-top:16px;">
+          ⚠️ يتم أداء العمولة كل يوم سبت دون تأخير. أي تأخير قد يؤدي إلى تعليق الحساب.
+        </div>
+      </div>
+      <div class="fr-content">
+        <p>Tout artisan inscrit sur la plateforme <strong>Allo-Bricall</strong> s'engage à :</p>
+        <div class="price-card">
+          <div class="price-item">
+            <div class="amount">100 MAD</div>
+            <div class="label">Abonnement mensuel publicitaire</div>
+          </div>
+          <div class="divider"></div>
+          <div class="price-item">
+            <div class="amount">10%</div>
+            <div class="label">Commission sur chaque travail</div>
+          </div>
+          <div class="divider"></div>
+          <div class="price-item">
+            <div class="amount">Chaque samedi</div>
+            <div class="label">Date de versement de la commission</div>
+          </div>
+        </div>
+        <div class="highlight-box orange" style="margin-top:16px;">
+          ⚠️ La commission doit être versée chaque samedi sans délai. Tout retard peut entraîner la suspension du compte.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Obligations artisan -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🔧</div>
+      <div class="ar-content"><h2>التزامات الحرفي</h2></div>
+      <div class="fr-content"><h2>Obligations de l'artisan</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <ul>
+          <li>الانتظام في العمل والتصرف باحترافية مع الزبائن</li>
+          <li>احترام الزبون في السلوك والكلام والتعامل</li>
+          <li>إتمام العمل على أحسن وجه حتى رضا الزبون</li>
+          <li>في حالة عدم اكتمال العمل، يجب على الحرفي إنهاؤه وإصلاحه</li>
+          <li>الالتزام بالمواعيد المتفق عليها مع الزبون</li>
+        </ul>
+        <div class="highlight-box green">
+          ✅ الحرفي الملتزم يحظى بترتيب أعلى في نتائج البحث داخل المنصة.
+        </div>
+      </div>
+      <div class="fr-content">
+        <ul>
+          <li>Être régulier dans le travail et se comporter professionnellement avec les clients</li>
+          <li>Respecter le client dans le comportement, la parole et les échanges</li>
+          <li>Achever le travail de manière satisfaisante jusqu'à la satisfaction du client</li>
+          <li>En cas de travail incomplet, l'artisan doit le terminer et le corriger</li>
+          <li>Respecter les délais convenus avec le client</li>
+        </ul>
+        <div class="highlight-box green">
+          ✅ L'artisan engagé bénéficie d'un meilleur classement dans les résultats de recherche de la plateforme.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Obligations client -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">👤</div>
+      <div class="ar-content"><h2>التزامات الزبون</h2></div>
+      <div class="fr-content"><h2>Obligations du client</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <ul>
+          <li>احترام الحرفي وحسن التعامل معه</li>
+          <li>أداء مستحقات الحرفي كاملة بعد إنجاز العمل</li>
+          <li>الوضوح في وصف العمل المطلوب منذ البداية</li>
+          <li>عدم طلب أعمال إضافية خارج ما تم الاتفاق عليه دون تعويض</li>
+        </ul>
+        <div class="highlight-box orange">
+          ⚠️ في حالة رفض الزبون الأداء بعد إتمام العمل، يحق للحرفي اللجوء للمنصة أو القضاء.
+        </div>
+      </div>
+      <div class="fr-content">
+        <ul>
+          <li>Respecter l'artisan et bien se comporter avec lui</li>
+          <li>Payer intégralement les honoraires de l'artisan après l'achèvement des travaux</li>
+          <li>Être clair dans la description des travaux demandés dès le départ</li>
+          <li>Ne pas demander des travaux supplémentaires en dehors de ce qui a été convenu sans compensation</li>
+        </ul>
+        <div class="highlight-box orange">
+          ⚠️ En cas de refus de paiement par le client après achèvement des travaux, l'artisan peut recourir à la plateforme ou à la justice.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Litiges -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">⚖️</div>
+      <div class="ar-content"><h2>النزاعات والوساطة</h2></div>
+      <div class="fr-content"><h2>Litiges et médiation</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <p>في حالة نشوء نزاع بين الزبون والحرفي، تسير المنصة وفق المراحل التالية:</p>
+        <ul>
+          <li><strong>المرحلة الأولى:</strong> تدخل المنصة بشكل ودي للتقريب بين الطرفين</li>
+          <li><strong>المرحلة الثانية:</strong> إذا تعذر الحل الودي، يُوجَّه الطرفان نحو القضاء</li>
+        </ul>
+        <div class="highlight-box blue">
+          🔵 منصة <strong>Allo-Bricall</strong> تتدخل كوسيط فقط ولا تتحمل أي مسؤولية قانونية عن تصرفات أو نزاعات الأطراف. المسؤولية الكاملة تقع على الحرفي والزبون.
+        </div>
+      </div>
+      <div class="fr-content">
+        <p>En cas de litige entre le client et l'artisan, la plateforme procède selon les étapes suivantes :</p>
+        <ul>
+          <li><strong>Étape 1 :</strong> Intervention amiable de la plateforme pour rapprocher les deux parties</li>
+          <li><strong>Étape 2 :</strong> Si la résolution amiable échoue, les deux parties sont orientées vers la justice</li>
+        </ul>
+        <div class="highlight-box blue">
+          🔵 La plateforme <strong>Allo-Bricall</strong> intervient uniquement en tant que médiateur et n'assume aucune responsabilité légale pour les actions ou litiges des parties. La responsabilité entière incombe à l'artisan et au client.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Responsabilité -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <div class="ar-content"><h2>حدود مسؤولية المنصة</h2></div>
+      <div class="fr-content"><h2>Limites de responsabilité de la plateforme</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <p>منصة <strong>Allo-Bricall</strong> هي وسيط رقمي يربط الزبائن بالحرفيين فقط. وبناءً على ذلك:</p>
+        <ul>
+          <li>المنصة غير مسؤولة عن جودة العمل المنجز</li>
+          <li>المنصة غير مسؤولة عن أي نزاع مالي بين الطرفين</li>
+          <li>المنصة غير مسؤولة عن أي ضرر قد يلحق بالزبون أو الحرفي</li>
+          <li>المنصة غير مسؤولة عن سلوك الأطراف خارج نطاق المنصة</li>
+        </ul>
+      </div>
+      <div class="fr-content">
+        <p>La plateforme <strong>Allo-Bricall</strong> est un intermédiaire numérique qui met uniquement en relation les clients et les artisans. En conséquence :</p>
+        <ul>
+          <li>La plateforme n'est pas responsable de la qualité des travaux effectués</li>
+          <li>La plateforme n'est pas responsable de tout litige financier entre les parties</li>
+          <li>La plateforme n'est pas responsable de tout dommage pouvant affecter le client ou l'artisan</li>
+          <li>La plateforme n'est pas responsable du comportement des parties en dehors de la plateforme</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6: Acceptation -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">✅</div>
+      <div class="ar-content"><h2>القبول بالشروط</h2></div>
+      <div class="fr-content"><h2>Acceptation des conditions</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="ar-content">
+        <p>باستخدامك لمنصة <strong>Allo-Bricall</strong>، سواء كنت زبوناً أو حرفياً، فإنك توافق على جميع الشروط والأحكام المذكورة في هذه الصفحة.</p>
+      </div>
+      <div class="fr-content">
+        <p>En utilisant la plateforme <strong>Allo-Bricall</strong>, que vous soyez client ou artisan, vous acceptez l'ensemble des conditions générales mentionnées sur cette page.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 Allo-Bricall — <a href="/">allo-bricall.ma</a> | <a href="/privacy.html">سياسة الخصوصية | Politique de confidentialité</a></p>
+</footer>
+
+<script>
+  function setLang(lang, event) {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
