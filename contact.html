@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اتصل بنا | Contactez-nous - Allo-Bricall</title>
+  <meta name="description" content="تواصل مع فريق Allo-Bricall عبر البريد الإلكتروني contact@allo-bricall.ma">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary:#e05a00; --primary-light:#ff7a20; --dark:#1a1a2e; --gray:#f5f5f5; --text:#333; --text-light:#666; --border:#e0e0e0; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Cairo',sans-serif; color:var(--text); background:#fff; line-height:1.8; }
+    header { background:var(--dark); padding:18px 40px; display:flex; align-items:center; justify-content:space-between; }
+    .logo { font-size:24px; font-weight:700; color:#fff; text-decoration:none; }
+    .logo span { color:var(--primary-light); }
+    .lang-switch { display:flex; gap:10px; }
+    .lang-btn { padding:6px 16px; border-radius:20px; border:2px solid var(--primary-light); background:transparent; color:#fff; cursor:pointer; font-size:13px; font-family:'Poppins',sans-serif; transition:all .3s; }
+    .lang-btn.active, .lang-btn:hover { background:var(--primary); border-color:var(--primary); }
+    .hero { background:linear-gradient(135deg,var(--dark) 0%,#16213e 100%); padding:60px 40px; text-align:center; color:#fff; }
+    .hero h1 { font-size:36px; font-weight:700; margin-bottom:10px; }
+    .hero h1 span { color:var(--primary-light); }
+    .hero p { color:#aaa; font-size:15px; }
+    .container { max-width:760px; margin:0 auto; padding:50px 30px; }
+    .card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:28px; margin-bottom:22px; display:flex; align-items:center; gap:18px; }
+    .card-icon { width:54px; height:54px; background:var(--primary); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+    .card h2 { font-size:18px; color:var(--dark); margin-bottom:4px; }
+    .card a, .card p { color:var(--text-light); font-size:15px; text-decoration:none; }
+    .card a:hover { color:var(--primary); }
+    footer { background:var(--dark); color:#aaa; text-align:center; padding:24px; font-size:14px; }
+    footer a { color:var(--primary-light); text-decoration:none; margin:0 8px; }
+    [lang="fr"] .ar-content { display:none; } [lang="fr"] .fr-content { display:block; }
+    [lang="ar"] .fr-content { display:none; } [lang="ar"] .ar-content { display:block; }
+    [lang="fr"] { direction:ltr; font-family:'Poppins',sans-serif; }
+    @media(max-width:600px){ header{padding:14px 20px;} .hero{padding:40px 20px;} .hero h1{font-size:26px;} .container{padding:30px 16px;} }
+  </style>
+</head>
+<body>
+<header>
+  <a href="/" class="logo">Allo-<span>Bricall</span></a>
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('ar')">العربية</button>
+    <button class="lang-btn" onclick="setLang('fr')">Français</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="ar-content"><h1>اتصل <span>بنا</span></h1><p>حنا هنا باش نعاونوك — تواصل معنا فأي وقت</p></div>
+  <div class="fr-content"><h1>Contactez-<span>nous</span></h1><p>Nous sommes là pour vous aider — contactez-nous à tout moment</p></div>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-icon">✉️</div>
+    <div>
+      <div class="ar-content"><h2>البريد الإلكتروني</h2></div>
+      <div class="fr-content"><h2>E-mail</h2></div>
+      <a href="mailto:contact@allo-bricall.ma">contact@allo-bricall.ma</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">🌐</div>
+    <div>
+      <div class="ar-content"><h2>الموقع الإلكتروني</h2></div>
+      <div class="fr-content"><h2>Site web</h2></div>
+      <a href="https://allo-bricall.ma">allo-bricall.ma</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">📍</div>
+    <div>
+      <div class="ar-content"><h2>المنطقة</h2><p>الدار البيضاء والمناطق المجاورة — المغرب</p></div>
+      <div class="fr-content"><h2>Zone</h2><p>Casablanca et environs — Maroc</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">📱</div>
+    <div>
+      <div class="ar-content"><h2>تابعنا على انستغرام</h2></div>
+      <div class="fr-content"><h2>Suivez-nous sur Instagram</h2></div>
+      <a href="https://instagram.com/allobricall" target="_blank">@allobricall</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <a href="/privacy.html">سياسة الخصوصية</a> ·
+  <a href="/terms.html">شروط الاستخدام</a> ·
+  <a href="/blog">المدونة</a> ·
+  <a href="/">الرئيسية</a><br>
+  © 2026 Allo-Bricall — allo-bricall.ma
+</footer>
+
+<script>
+  function setLang(lang){
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang==='ar' ? 'rtl' : 'ltr';
+    document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
